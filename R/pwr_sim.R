@@ -47,7 +47,7 @@ pwr_sim <- function(func, params, n.sims=5000, ...) {
     totalSims <- nrow(grid) * n.sims
     progressBar <- txtProgressBar(min=0, max=totalSims, style=3)
 
-    output <- NULL  # variable to fill with final output
+    allResults <- NULL  # variable to fill with final output
     for (set in 1:nrow(grid)) {
         for (s in 1:n.sims) {
             result <- c(sim=s, unlist(grid_output[set, ]),
@@ -60,12 +60,12 @@ pwr_sim <- function(func, params, n.sims=5000, ...) {
                 names(result)[2] <- colnames(grid_output)[1]
             }
 
-            if (is.null(output)) {
-                output <- result
+            if (is.null(allResults)) {
+                allResults <- result
             } else {
-                output <- rbind(output, result)
+                allResults <- rbind(allResults, result)
             }
-            row.names(output) <- NULL
+            row.names(allResults) <- NULL
 
             # update the progress bar
             if (s %% 20 == 0) {
@@ -73,51 +73,13 @@ pwr_sim <- function(func, params, n.sims=5000, ...) {
             }
         }
     }
-    return(as.data.frame(output))
+
+    allResults <- as.data.frame(allResults)
+
+    output <- list(results=allResults, tests=grid, n.sims=n.sims)
+    class(output) <- 'pwr_sim'
+    return(output)
 }
-
-
-#' Calculate error variance given model coefficients.
-#'
-#' \code{lm_error_var} will calculate the required error variance for a linear
-#' model, given specified model coefficients, to create variance for your
-#' dependent variable of approximately 1.
-#'
-#' @param ... Pass along all model coefficients, excluding the intercept. These
-#'   can be named or unnamed
-#' @return Returns the required error variance so that the variance of your
-#'   dependent variable is approximately 1.
-#' @examples
-#' lm_error_var(b1=.15, b2=.3)  # returns error variance of 0.8875
-#' @export
-lm_error_var <- function(...) {
-    dots <- list(...)
-    exp_var <- 0
-    for (i in 1:length(dots)) {
-        exp_var <- exp_var + dots[[i]]^2
-    }
-    return(1-exp_var)
-}
-
-
-# test
-# lm_test <- function(N, b1, b0=0, xm=0, xsd=1) {
-#     obs <- rep(1:N)
-#     x <- rnorm(N, xm, xsd)
-#     y <- rnorm(N, b0 + b1*x, sqrt(lm_error_var(b1)))
-#     data <- data.frame(obs, y, x)
-#     model <- lm(y ~ x, data)
-#
-#     est <- coef(summary(model))['x', 'Estimate']
-#     se <- coef(summary(model))['x', 'Std. Error']
-#     p <- coef(summary(model))['x', 'Pr(>|t|)']
-#
-#     return(c(xm=mean(x), xsd=sd(x), ym=mean(y), ysd=sd(y), est=est, se=se, p=p,
-#         sig=est > 0 & p <= .05))
-# }
-#
-# system.time(power <- pwr_sim(lm_test, params=list(N=c(100, 200)), n.sims=500, b1=.15))
-
 
 
 
