@@ -89,20 +89,29 @@ n.sims.pwr_sim <- function(sim) {
 #'
 #' \code{lm_error_var} will calculate the required error variance for a linear
 #' model, given specified model coefficients, to create variance for your
-#' dependent variable of approximately 1.
+#' dependent variable of approximately 'var'.
 #'
+#' \strong{Note:} This function assumes that \emph{all predictors are
+#' independent} (i.e., uncorrelated).
+#'
+#' @param var The variance you wish your dependent variable to be.
 #' @param ... Pass along all model coefficients, excluding the intercept. These
-#'   can be named or unnamed
+#'   can be named or unnamed.
 #' @return Returns the required error variance so that the variance of your
-#'   dependent variable is approximately 1.
+#'   dependent variable is approximately 'var'.
 #' @examples
-#' lm_error_var(b1=.15, b2=.3)  # returns error variance of 0.8875
+#' lm_error_var(var=1, .15, .3)  # returns error variance of 0.8875
 #' @export
-lm_error_var <- function(...) {
+lm_error_var <- function(var=1, ...) {
     dots <- list(...)
     exp_var <- 0
     for (i in 1:length(dots)) {
         exp_var <- exp_var + dots[[i]]^2
     }
-    return(1-exp_var)
+    return(var - exp_var)
 }
+
+
+
+
+
