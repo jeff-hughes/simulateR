@@ -58,59 +58,98 @@ pwr_sim <- function(func, params=NULL, n.sims=5000, boot=FALSE, bootParams=NULL,
     grid_output <- grid
     names(grid_output) <- paste0(names(grid_output), '.test')
 
-    totalSims <- nrow(grid) * n.sims
-    cat(paste0('Running ',
-        prettyNum(totalSims, big.mark=',', scientific=FALSE),
-        ' simulations...\n'))
-
-    progressBar <- NULL
-    if (!boot && totalSims >= 100) {
-        progressBar <- txtProgressBar(min=0, max=totalSims, style=3, width=60)
+    # figure out which parallel method to use
+    parallel <- match.arg(parallel)
+    have_mc <- FALSE
+    have_snow <- FALSE
+    if (parallel != 'no' && ncpus > 1) {
+        if (requireNamespace('parallel', quietly=TRUE)) {
+            if (parallel == 'multicore') {
+                have_mc <- .Platform$OS.type != 'windows'
+                if (!have_mc) {
+                    warning('Multicore is not supported on Windows. Try parallel = "snow" instead. Proceeding with simulations serially.')
+                }
+            } else if (parallel == 'snow') {
+                have_snow <- TRUE
+            }
+        } else {
+            warning("Loading package 'parallel' failed. Proceeding with simulations serially.")
+        }
+        if (!have_mc && !have_snow) {
+            ncpus <- 1
+        }
     }
+
+    # set up cluster if necessary
+    if (ncpus > 1 && have_snow) {
+        if (is.null(cl)) {
+            clust <- parallel::makePSOCKcluster(rep('localhost',
+                ncpus))
+            if (RNGkind()[1] == "L'Ecuyer-CMRG") {
+                parallel::clusterSetRNGStream(clust)
+            }
+        } else {
+            clust <- cl
+        }
+    }
+
+    cat(paste0('Running ',
+        prettyNum(nrow(grid) * n.sims, big.mark=',', scientific=FALSE),
+        ' simulations...\n'))
 
     allResults <- NULL  # variable to fill with final output
     for (set in 1:nrow(grid)) {
         # bootstrap data
         if (boot && 'data' %in% names(bootParams)) {
-            boot_output <- do.call(boot::boot, args=c(list(statistic=func, R=n.sims),
-                bootParams, as.list(grid[set, , drop=FALSE]), ...))
+            boot_output <- do.call(boot::boot, args=c(list(statistic=func,
+                R=n.sims, parallel=parallel, ncpus=ncpus, cl=cl), bootParams,
+                as.list(grid[set, , drop=FALSE]), ...))
 
-            boot_names <- names(boot_output$t0)
-            boot_data <- boot_output$t
-            colnames(boot_data) <- boot_names
-
-            extendGrid <- matrix(rep(unlist(grid_output[set, , drop=FALSE]),
-                each=n.sims), nrow=n.sims)
-            colnames(extendGrid) <- names(grid_output)
-            result <- cbind(sim=1:n.sims, extendGrid, boot_data)
-
-            if (is.null(allResults)) {
-                allResults <- result
-            } else {
-                allResults <- rbind(allResults, result)
-            }
-            row.names(allResults) <- NULL
+            col_names <- names(boot_output$t0)
+            output <- boot_output$t
+            colnames(output) <- col_names
 
         # simulate data
         } else {
-            for (s in 1:n.sims) {
-                result <- c(sim=s, unlist(grid_output[set, , drop=FALSE]),
-                    do.call(func, args=c(as.list(grid[set, , drop=FALSE]), ...)))
-                    # single line of output, from one simulation
+            if (ncpus > 1 &&
+                (have_mc || have_snow)) {
 
-                if (is.null(allResults)) {
-                    allResults <- result
-                } else {
-                    allResults <- rbind(allResults, result)
+                if (have_mc) {
+                    output <- do.call(parallel::mclapply,
+                        args=c(list(X=1:n.sims, FUN=func, mc.cores=ncpus),
+                            as.list(grid[set, , drop=FALSE]), ...))
+                } else if (have_snow) {
+                    output <- do.call(parallel::parLapply,
+                        args=c(list(cl=clust, X=1:n.sims, fun=func),
+                            as.list(grid[set, , drop=FALSE]), ...))
                 }
-                row.names(allResults) <- NULL
-
-                # update the progress bar
-                if (!is.null(progressBar) && s %% 20 == 0) {
-                    setTxtProgressBar(progressBar, (set-1)*n.sims + s)
-                }
+            } else {
+                output <- do.call(lapply, args=c(list(X=1:n.sims, FUN=func),
+                    as.list(grid[set, , drop=FALSE]), ...))
             }
+
+            # convert list to data frame
+            col_names <- names(output[[1]])
+            output <- do.call(rbind.data.frame, output)
+            colnames(output) <- col_names
         }
+
+        extendGrid <- matrix(rep(unlist(grid_output[set, , drop=FALSE]),
+            each=n.sims), nrow=n.sims)
+        colnames(extendGrid) <- names(grid_output)
+        result <- cbind(sim=1:n.sims, extendGrid, output)
+
+        if (is.null(allResults)) {
+            allResults <- result
+        } else {
+            allResults <- rbind(allResults, result)
+        }
+        row.names(allResults) <- NULL
+    }
+
+    # stop cluster if we created it
+    if (ncpus > 1 && have_snow && is.null(cl)) {
+        parallel::stopCluster(clust)
     }
 
     allResults <- as.data.frame(allResults)
