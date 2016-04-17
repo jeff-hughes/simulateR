@@ -11,6 +11,19 @@
 #'   parameters can be a vector of multiple values, and \code{pwr_sim} will test
 #'   each combination of these values.
 #' @param n.sims Number of simulations (per combination of params).
+#' @param boot Whether or not to use bootstrapped data to pass along to your
+#'   simulation.
+#' @param bootParams If \code{boot=TRUE}, then use \code{bootParams} to pass
+#'   along a named list of arguments to the \code{\link{boot}} function. The
+#'   statistic and R parameters will be filled automatically, but at minimum you
+#'   will need to pass along data. Information about parallel processing will
+#'   also be passed along automatically.
+#' @param parallel The type of parallel operation to be used (if any).
+#' @param ncpus Integer: the number of processes to be used in parallel
+#'   operation.
+#' @param cl An optional \code{parallel} or \code{snow} cluster for use if
+#'   \code{parallel = 'snow'}. If not supplied, a cluster on the local machine
+#'   is created for the duration of the simulations.
 #' @param ... Additional arguments to be passed to \code{func}. If you do not
 #'   need to vary certain parameters in your model, you can pass them to
 #'   \code{func} here.
@@ -37,28 +50,39 @@
 #' # test power for two sample sizes: N=200 and N=300, with 5000 sims for each
 #' power <- pwr_sim(lm_test, params=list(N=c(200, 300)), n.sims=5000, b0=0, b1=.15)
 #' @export
-pwr_sim <- function(func, params, n.sims=5000, ...) {
+pwr_sim <- function(func, params=NULL, n.sims=5000, boot=FALSE, bootParams=NULL,
+    parallel=c('no', 'multicore', 'snow'), ncpus=1, cl=NULL, ...) {
+
     # cross each param value with every other one, to create all combinations
     grid <- expand.grid(params, KEEP.OUT.ATTRS=FALSE)
     grid_output <- grid
     names(grid_output) <- paste0(names(grid_output), '.test')
 
-    cat('Running simulations...\n')
     totalSims <- nrow(grid) * n.sims
-    progressBar <- txtProgressBar(min=0, max=totalSims, style=3)
+    cat(paste0('Running ',
+        prettyNum(totalSims, big.mark=',', scientific=FALSE),
+        ' simulations...\n'))
+
+    progressBar <- NULL
+    if (!boot && totalSims >= 100) {
+        progressBar <- txtProgressBar(min=0, max=totalSims, style=3, width=60)
+    }
 
     allResults <- NULL  # variable to fill with final output
     for (set in 1:nrow(grid)) {
-        for (s in 1:n.sims) {
-            result <- c(sim=s, unlist(grid_output[set, ]),
-                do.call(func, args=c(as.list(grid[set, ]), ...)))
-                # single line of output, from one simulation
+        # bootstrap data
+        if (boot && 'data' %in% names(bootParams)) {
+            boot_output <- do.call(boot::boot, args=c(list(statistic=func, R=n.sims),
+                bootParams, as.list(grid[set, , drop=FALSE]), ...))
 
-            # colnames get dropped when combined if only one column, so insert
-            # them back
-            if (ncol(grid_output) == 1) {
-                names(result)[2] <- colnames(grid_output)[1]
-            }
+            boot_names <- names(boot_output$t0)
+            boot_data <- boot_output$t
+            colnames(boot_data) <- boot_names
+
+            extendGrid <- matrix(rep(unlist(grid_output[set, , drop=FALSE]),
+                each=n.sims), nrow=n.sims)
+            colnames(extendGrid) <- names(grid_output)
+            result <- cbind(sim=1:n.sims, extendGrid, boot_data)
 
             if (is.null(allResults)) {
                 allResults <- result
@@ -67,9 +91,24 @@ pwr_sim <- function(func, params, n.sims=5000, ...) {
             }
             row.names(allResults) <- NULL
 
-            # update the progress bar
-            if (s %% 20 == 0) {
-                setTxtProgressBar(progressBar, (set-1)*n.sims + s)
+        # simulate data
+        } else {
+            for (s in 1:n.sims) {
+                result <- c(sim=s, unlist(grid_output[set, , drop=FALSE]),
+                    do.call(func, args=c(as.list(grid[set, , drop=FALSE]), ...)))
+                    # single line of output, from one simulation
+
+                if (is.null(allResults)) {
+                    allResults <- result
+                } else {
+                    allResults <- rbind(allResults, result)
+                }
+                row.names(allResults) <- NULL
+
+                # update the progress bar
+                if (!is.null(progressBar) && s %% 20 == 0) {
+                    setTxtProgressBar(progressBar, (set-1)*n.sims + s)
+                }
             }
         }
     }

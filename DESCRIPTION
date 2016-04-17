@@ -10,3 +10,4 @@ Description: This package allows you to test various statistical models and vary
     the pwrsim documentation for more information, documentation, and examples.
 License: GPL-3
 LazyData: TRUE
+Imports: boot
