@@ -54,9 +54,16 @@ pwr_sim <- function(func, params=NULL, n.sims=5000, boot=FALSE, bootParams=NULL,
     parallel=c('no', 'multicore', 'snow'), ncpus=1, cl=NULL, ...) {
 
     # cross each param value with every other one, to create all combinations
-    grid <- expand.grid(params, KEEP.OUT.ATTRS=FALSE)
-    grid_output <- grid
-    names(grid_output) <- paste0(names(grid_output), '.test')
+    if (!is.null(params)) {
+        grid <- expand.grid(params, KEEP.OUT.ATTRS=FALSE)
+        grid_output <- grid
+        names(grid_output) <- paste0(names(grid_output), '.test')
+        nSets <- nrow(grid)
+    } else {
+        grid <- data.frame()  # empty
+        grid_output <- data.frame()
+        nSets <- 1
+    }
 
     # figure out which parallel method to use
     parallel <- match.arg(parallel)
@@ -94,11 +101,11 @@ pwr_sim <- function(func, params=NULL, n.sims=5000, boot=FALSE, bootParams=NULL,
     }
 
     cat(paste0('Running ',
-        prettyNum(nrow(grid) * n.sims, big.mark=',', scientific=FALSE),
+        prettyNum(nSets * n.sims, big.mark=',', scientific=FALSE),
         ' simulations...\n'))
 
     allResults <- NULL  # variable to fill with final output
-    for (set in 1:nrow(grid)) {
+    for (set in 1:nSets) {
         # bootstrap data
         if (boot && 'data' %in% names(bootParams)) {
             boot_output <- do.call(boot::boot, args=c(list(statistic=func,
@@ -134,10 +141,14 @@ pwr_sim <- function(func, params=NULL, n.sims=5000, boot=FALSE, bootParams=NULL,
             colnames(output) <- col_names
         }
 
-        extendGrid <- matrix(rep(unlist(grid_output[set, , drop=FALSE]),
-            each=n.sims), nrow=n.sims)
-        colnames(extendGrid) <- names(grid_output)
-        result <- cbind(sim=1:n.sims, extendGrid, output)
+        if (!is.null(params)) {
+            extendGrid <- matrix(rep(unlist(grid_output[set, , drop=FALSE]),
+                each=n.sims), nrow=n.sims)
+            colnames(extendGrid) <- names(grid_output)
+            result <- cbind(sim=1:n.sims, extendGrid, output)
+        } else {
+            result <- cbind(sim=1:n.sims, output)
+        }
 
         if (is.null(allResults)) {
             allResults <- result

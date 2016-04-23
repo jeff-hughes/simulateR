@@ -33,38 +33,30 @@ summary.pwr_sim <- function(sim, outcome, params=NULL, func=mean) {
         # be included for that parameter; so we loop through each parameter and
         # pare down the grid to only include those values
         for (p in 1:length(params)) {
-            grid <- grid[grid[, paramNames[p]] %in% params[[p]], ]
+            grid <- grid[grid[, paramNames[p]] %in% params[[p]], , drop=FALSE]
         }
 
-        grid <- unique(grid[, paramNames])
-
-        # above code will turn grid into vector if only one param is selected
-        if (length(params) == 1) {
-            grid <- as.data.frame(grid)
-            names(grid) <- paramNames
-        }
+        grid <- unique(grid[, paramNames, drop=FALSE])
     } else if (is.vector(params)) {
-        grid <- unique(sim$tests[, params])
-
-        # above code will turn grid into vector if only one param is selected
-        if (length(params) == 1) {
-            grid <- as.data.frame(grid)
-            names(grid) <- params
-        }
+        grid <- unique(sim$tests[, params, drop=FALSE])
     }
-    results <- grid
 
-    # loop through each combination of tests
-    for (i in 1:nrow(grid)) {
-        data <- sim$results
+    if (nrow(grid) > 0) {
+        results <- grid
+        # loop through each combination of tests
+        for (i in 1:nrow(grid)) {
+            data <- sim$results
 
-        # loop through each parameter value individually and filter down data
-        for (p in 1:ncol(grid)) {
-            paramName <- paste0(names(sim$tests)[p], '.test')
-            data <- data[data[, paramName] == sim$tests[i, p], ]
+            # loop through each parameter value individually and filter down data
+            for (p in 1:ncol(grid)) {
+                paramName <- paste0(names(sim$tests)[p], '.test')
+                data <- data[data[, paramName] == sim$tests[i, p], ]
+            }
+
+            results[i, as.character(substitute(func))] <- func(data[, outcome])
         }
-
-        results[i, as.character(substitute(func))] <- func(data[, outcome])
+    } else {
+        results <- func(sim$results[, outcome])
     }
     return(results)
 }
