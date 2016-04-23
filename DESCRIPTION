@@ -11,4 +11,6 @@ Description: This package allows you to test various statistical models and vary
 License: GPL-3
 LazyData: TRUE
 Imports: boot
-Suggests: parallel
+Suggests: parallel,
+    knitr
+VignetteBuilder: knitr
