@@ -4,22 +4,28 @@
 \alias{lm_error_var}
 \title{Calculate error variance given model coefficients.}
 \usage{
-lm_error_var(...)
+lm_error_var(var = 1, ...)
 }
 \arguments{
+\item{var}{The variance you wish your dependent variable to be.}
+
 \item{...}{Pass along all model coefficients, excluding the intercept. These
-can be named or unnamed}
+can be named or unnamed.}
 }
 \value{
 Returns the required error variance so that the variance of your
-  dependent variable is approximately 1.
+  dependent variable is approximately 'var'.
 }
 \description{
 \code{lm_error_var} will calculate the required error variance for a linear
 model, given specified model coefficients, to create variance for your
-dependent variable of approximately 1.
+dependent variable of approximately 'var'.
+}
+\details{
+\strong{Note:} This function assumes that \emph{all predictors are
+independent} (i.e., uncorrelated).
 }
 \examples{
-lm_error_var(b1=.15, b2=.3)  # returns error variance of 0.8875
+lm_error_var(var=1, .15, .3)  # returns error variance of 0.8875
 }
 

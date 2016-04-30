@@ -2,12 +2,12 @@
 % Please edit documentation in R/helpers.R
 \name{tests}
 \alias{tests}
-\title{Return the tests performed by a power simulation.}
+\title{Return the tests performed by a simulation.}
 \usage{
 tests(sim, ...)
 }
 \arguments{
-\item{sim}{A power simulation object.}
+\item{sim}{A simulation object.}
 
 \item{...}{Additional arguments to be passed to the particular method for the
 given object tye.}
@@ -19,9 +19,9 @@ The form of the value returned by \code{tests} depends on the class
 }
 \description{
 \code{tests} is a generic function that extracts information about the set of
-specific tests (parameter values) for a power simulation.
+specific tests (parameter values) for a simulation.
 }
 \seealso{
-\code{\link{tests.pwr_sim}}
+\code{\link{tests.simulation}}
 }
 

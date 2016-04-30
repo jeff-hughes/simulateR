@@ -2,12 +2,12 @@
 % Please edit documentation in R/helpers.R
 \name{results}
 \alias{results}
-\title{Return results of a power simulation.}
+\title{Return results of a simulation.}
 \usage{
 results(sim, ...)
 }
 \arguments{
-\item{sim}{A power simulation object.}
+\item{sim}{A simulation object.}
 
 \item{...}{Additional arguments to be passed to the particular method for the
 given object tye.}
@@ -18,10 +18,10 @@ The form of the value returned by \code{results} depends on the class
   details of what is produced by that method.
 }
 \description{
-\code{results} is a generic function that extracts the raw data from a power
+\code{results} is a generic function that extracts the raw data from a
 simulation.
 }
 \seealso{
-\code{\link{results.pwr_sim}}
+\code{\link{results.simulation}}
 }
 

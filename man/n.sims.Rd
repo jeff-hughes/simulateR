@@ -2,12 +2,12 @@
 % Please edit documentation in R/helpers.R
 \name{n.sims}
 \alias{n.sims}
-\title{Return the number of simulations performed by a power simulation.}
+\title{Return the number of simulations performed by a simulation.}
 \usage{
 n.sims(sim, ...)
 }
 \arguments{
-\item{sim}{A power simulation object.}
+\item{sim}{A simulation object.}
 
 \item{...}{Additional arguments to be passed to the particular method for the
 given object tye.}
@@ -19,9 +19,9 @@ The form of the value returned by \code{n.sims} depends on the class
 }
 \description{
 \code{n.sims} is a generic function that extracts information about the
-number of simulations (per specific test) performed by a power simulation.
+number of simulations (per specific test) performed by a simulation.
 }
 \seealso{
-\code{\link{n.sims.pwr_sim}}
+\code{\link{n.sims.simulation}}
 }
 
