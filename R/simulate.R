@@ -1,15 +1,15 @@
-#' Simulate statistical power.
+#' Simulate data and statistical models.
 #'
-#' \code{pwr_sim} simulates data by generating samples according to a user-
-#' defined function. These data can then be used to examine statistical power.
-#' This function is intentionally kept general and flexible, to allow for a wide
-#' variety of statistical models.
+#' \code{simulate} simulates data by generating samples according to a user-
+#' defined function. These data can then be used to examine whatever statistic
+#' you wish. This function is intentionally kept general and flexible, to allow
+#' for a wide variety of applications.
 #'
 #' @param func A user-defined function that generates data and performs a
 #'   statistical test on that data.
 #' @param params A list of parameters to be passed to \code{func}. Each of these
-#'   parameters can be a vector of multiple values, and \code{pwr_sim} will test
-#'   each combination of these values.
+#'   parameters can be a vector of multiple values, and \code{simulate} will
+#'   test each combination of these values.
 #' @param n.sims Number of simulations (per combination of params).
 #' @param boot Whether or not to use bootstrapped data to pass along to your
 #'   simulation.
@@ -48,9 +48,9 @@
 #' }
 #'
 #' # test power for two sample sizes: N=200 and N=300, with 5000 sims for each
-#' power <- pwr_sim(lm_test, params=list(N=c(200, 300)), n.sims=5000, b0=0, b1=.15)
+#' power_sim <- simulate(lm_test, params=list(N=c(200, 300)), n.sims=5000, b0=0, b1=.15)
 #' @export
-pwr_sim <- function(func, params=NULL, n.sims=5000, boot=FALSE, bootParams=NULL,
+simulate <- function(func, params=NULL, n.sims=5000, boot=FALSE, bootParams=NULL,
     parallel=c('no', 'multicore', 'snow'), ncpus=1, cl=NULL, ...) {
 
     # cross each param value with every other one, to create all combinations
@@ -166,7 +166,7 @@ pwr_sim <- function(func, params=NULL, n.sims=5000, boot=FALSE, bootParams=NULL,
     allResults <- as.data.frame(allResults)
 
     output <- list(results=allResults, tests=grid, n.sims=n.sims)
-    class(output) <- 'pwr_sim'
+    class(output) <- 'simulation'
     return(output)
 }
 

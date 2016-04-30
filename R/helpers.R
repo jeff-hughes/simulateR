@@ -1,86 +1,86 @@
-#' Return results of a power simulation.
+#' Return results of a simulation.
 #'
-#' \code{results} is a generic function that extracts the raw data from a power
+#' \code{results} is a generic function that extracts the raw data from a
 #' simulation.
 #'
-#' @param sim A power simulation object.
+#' @param sim A simulation object.
 #' @param ... Additional arguments to be passed to the particular method for the
 #'   given object tye.
 #' @return The form of the value returned by \code{results} depends on the class
 #'   of its argument. See the documentation of the particular methods for
 #'   details of what is produced by that method.
-#' @seealso \code{\link{results.pwr_sim}}
+#' @seealso \code{\link{results.simulation}}
 #' @export
 results <- function(sim, ...) UseMethod('results')
 
 
-#' Return results of a power simulation.
+#' Return results of a simulation.
 #'
-#' \code{results.pwr_sim} returns the raw data from a power simulation.
+#' \code{results.simulation} returns the raw data from a simulation.
 #'
-#' @param sim A power simulation object of type 'pwr_sim'.
+#' @param sim A simulation object of type 'simulation'.
 #' @return Returns a data frame with all the data returned from each simulation.
 #' @export
-results.pwr_sim <- function(sim) {
+results.simulation <- function(sim) {
     return(sim$results)
 }
 
 
-#' Return the tests performed by a power simulation.
+#' Return the tests performed by a simulation.
 #'
 #' \code{tests} is a generic function that extracts information about the set of
-#' specific tests (parameter values) for a power simulation.
+#' specific tests (parameter values) for a simulation.
 #'
-#' @param sim A power simulation object.
+#' @param sim A simulation object.
 #' @param ... Additional arguments to be passed to the particular method for the
 #'   given object tye.
 #' @return The form of the value returned by \code{tests} depends on the class
 #'   of its argument. See the documentation of the particular methods for
 #'   details of what is produced by that method.
-#' @seealso \code{\link{tests.pwr_sim}}
+#' @seealso \code{\link{tests.simulation}}
 #' @export
 tests <- function(sim, ...) UseMethod('tests')
 
 
-#' Return the tests performed by a power simulation.
+#' Return the tests performed by a simulation.
 #'
-#' \code{results.pwr_sim} extracts information about the set of specific tests
-#' (parameter values) for a power simulation.
+#' \code{tests.simulation} extracts information about the set of specific tests
+#' (parameter values) for a simulation.
 #'
-#' @param sim A power simulation object of type 'pwr_sim'.
+#' @param sim A simulation object of type 'simulation'.
 #' @return Returns a data frame with one row for each set of simulations that
 #'   was performed.
 #' @export
-tests.pwr_sim <- function(sim) {
+tests.simulation <- function(sim) {
     return(sim$tests)
 }
 
 
-#' Return the number of simulations performed by a power simulation.
+#' Return the number of simulations performed by a simulation.
 #'
 #' \code{n.sims} is a generic function that extracts information about the
-#' number of simulations (per specific test) performed by a power simulation.
+#' number of simulations (per specific test) performed by a simulation.
 #'
-#' @param sim A power simulation object.
+#' @param sim A simulation object.
 #' @param ... Additional arguments to be passed to the particular method for the
 #'   given object tye.
 #' @return The form of the value returned by \code{n.sims} depends on the class
 #'   of its argument. See the documentation of the particular methods for
 #'   details of what is produced by that method.
-#' @seealso \code{\link{n.sims.pwr_sim}}
+#' @seealso \code{\link{n.sims.simulation}}
 #' @export
 n.sims <- function(sim, ...) UseMethod('n.sims')
 
 
-#' Return the number of simulations performed by a power simulation.
+#' Return the number of simulations performed by a simulation.
 #'
-#' \code{n.sims.pwr_sim} extracts information about the number of simulations
-#' (per specific test) performed by a power simulation.
+#' \code{n.sims.simulation} extracts information about the number of simulations
+#' (per specific test) performed by a simulation.
 #'
-#' @param sim A power simulation object of type 'pwr_sim'.
+#' @param sim A simulation object of type 'simulation'.
 #' @return Returns the number of simulations done in each test.
 #' @export
-n.sims.pwr_sim <- function(sim) {
+n.sims.simulation <- function(sim) {
     return(sim$n.sims)
 }
 

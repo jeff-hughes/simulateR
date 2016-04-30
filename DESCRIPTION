@@ -1,13 +1,14 @@
-Package: pwrsim
+Package: simulateR
 Type: Package
-Title: Test Statistical Power Through Simulations
+Title: Test Statistical Models Through Simulation
 Version: 0.1.0
-Date: 2016-04-15
+Date: 2016-04-30
 Author@R: person("Jeffrey", "Hughes", email="jeff.hughes@gmail.com",
     role=c("aut", "cre"))
-Description: This package allows you to test various statistical models and vary
-    parameters to test the estimated statistical power to detect effects. See
-    the pwrsim documentation for more information, documentation, and examples.
+Description: This package allows you to run simulations while easily varying
+    parameters. One common use case would be to estimate statistical power for
+    complex models. See the simulateR documentation for more information,
+    documentation, and examples.
 License: GPL-3
 LazyData: TRUE
 Imports: boot
