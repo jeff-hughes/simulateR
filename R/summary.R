@@ -16,6 +16,7 @@
 #'   summary. In all cases, the summary will collapse across all parameters or
 #'   parameter values that are excluded from \code{params}.
 #' @param func The function to be used to generate the summary (e.g., mean, sum).
+#' @param ... Any other arguments to be passed to func.
 #' @return Returns a data frame with one row per set of unique simulation tests.
 #' @seealso \code{\link{simulate}}
 #' @examples
@@ -23,7 +24,7 @@
 #' # and all simulations where N=300
 #' summary(power_sim, 'sig', params=list(N=c(200, 300)))
 #' @export
-summary.simulation <- function(sim, outcome, params=NULL, func=mean) {
+summary.simulation <- function(sim, outcome, params=NULL, func=mean, ...) {
     if (is.null(params)) {
         grid <- sim$tests
     } else if (is.list(params)) {
@@ -54,10 +55,10 @@ summary.simulation <- function(sim, outcome, params=NULL, func=mean) {
                 data <- data[data[, paramName] == sim$tests[i, p], ]
             }
 
-            results[i, as.character(substitute(func))] <- func(data[, outcome])
+            results[i, as.character(substitute(func))] <- func(data[, outcome], ...)
         }
     } else {
-        results <- func(sim$results[, outcome])
+        results <- func(sim$results[, outcome], ...)
     }
     return(results)
 }
