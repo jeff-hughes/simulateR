@@ -1,5 +1,0 @@
-```{r, echo = FALSE, results = 'asis'}
-con <- file('Simulating-power.html', open='r')
-html <- readLines(con)
-cat(html, sep='\n')
-```

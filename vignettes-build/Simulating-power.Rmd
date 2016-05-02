@@ -2,7 +2,9 @@
 title: "Simulating Power"
 author: "Jeffrey Hughes"
 date: "`r Sys.Date()`"
-output: rmarkdown::html_vignette
+output:
+  rmarkdown::html_vignette:
+    smart: false
 vignette: >
   %\VignetteIndexEntry{Simulating Power}
   %\VignetteEngine{knitr::rmarkdown}

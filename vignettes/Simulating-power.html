@@ -77,7 +77,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 
 <div id="simulating-power-with-the-simulater-package" class="section level1">
 <h1>Simulating Power with the simulateR Package</h1>
-<p>For simple statistical models (e.g., <em>t</em>-test, correlation), calculating the estimated power can be done analytically (for example, one can use the <code>pwr</code> package). But for more complex models, it is difficult to provide a good estimate of power without the use of simulation. Simulations repeatedly generate random data based on one’s predefined model, then analyze each data set and count the proportion of results that are significant. That proportion is the estimated power for the model.</p>
+<p>For simple statistical models (e.g., <em>t</em>-test, correlation), calculating the estimated power can be done analytically (for example, one can use the <code>pwr</code> package). But for more complex models, it is difficult to provide a good estimate of power without the use of simulation. Simulations repeatedly generate random data based on one's predefined model, then analyze each data set and count the proportion of results that are significant. That proportion is the estimated power for the model.</p>
 <p>The <code>simulateR</code> package makes this process simple by providing a general-purpose, flexible function to perform simulations. You simply create a function that generates the data and analyses you want, and then use <code>simulate()</code> to run your user-defined function repeatedly and collate the results. The <code>simulate()</code> function also allows you to easily run simulations while varying particular parameters, so you can test the sensitivity of your analyses or how these parameters change the results.</p>
 <div id="example-simulating-a-t-test-with-simulater" class="section level2">
 <h2>Example: Simulating a <em>t</em>-test with simulateR</h2>
@@ -94,7 +94,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <span class="co">#&gt;     alternative = two.sided</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; NOTE: n is number in *each* group</span></code></pre></div>
-<p>We can see that the estimated power when Cohen’s <em>d</em> = .50 and <em>n</em> = 50 per cell is approximately .70. Simulating power in this simple case is likely overkill, but this example will demonstrate that simulations provide comparable results, at least for this model.</p>
+<p>We can see that the estimated power when Cohen's <em>d</em> = .50 and <em>n</em> = 50 per cell is approximately .70. Simulating power in this simple case is likely overkill, but this example will demonstrate that simulations provide comparable results, at least for this model.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(simulateR)
 
 <span class="co"># create user-defined function to generate and analyze data</span>
@@ -115,7 +115,7 @@ power_ttest &lt;-<span class="st"> </span><span class="kw">simulate</span>(t_fun
 <span class="co">#&gt; Running 5,000 simulations...</span>
 <span class="kw">summary</span>(power_ttest, <span class="st">'sig'</span>)  <span class="co"># get mean (proportion) of significant results</span>
 <span class="co">#&gt; [1] 0.7024</span></code></pre></div>
-<p>We first create a function that simulates normally distributed data for two groups, and performs a <em>t</em>-test. The <em>t</em> statistic and <em>p</em>-value are then returned as a named vector, along with a boolean value determining whether the test is significant or not. Finally, we use the <code>simulate</code> function to perform 5000 simulations, and then summarize the ‘sig’ value, which (by default) calculates the mean, giving us the proportion of simulations that were significant. This number agrees very closely with the analytic solution above.</p>
+<p>We first create a function that simulates normally distributed data for two groups, and performs a <em>t</em>-test. The <em>t</em> statistic and <em>p</em>-value are then returned as a named vector, along with a boolean value determining whether the test is significant or not. Finally, we use the <code>simulate</code> function to perform 5000 simulations, and then summarize the 'sig' value, which (by default) calculates the mean, giving us the proportion of simulations that were significant. This number agrees very closely with the analytic solution above.</p>
 </div>
 <div id="varying-parameters" class="section level2">
 <h2>Varying parameters</h2>
