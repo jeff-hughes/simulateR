@@ -13,6 +13,12 @@ knitr::opts_chunk$set(
   fig.path = "NEWS-"
 )
 ```
+# simulateR 0.1.1
+
+NEW FEATURES
+
+* Added vignette about simulating statistical power.
+
 # simulateR 0.1.0
 
 NEW FEATURES

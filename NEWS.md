@@ -1,4 +1,11 @@
 <!-- NEWS.md is generated from NEWS.Rmd. Please edit that file -->
+simulateR 0.1.1
+===============
+
+NEW FEATURES
+
+-   Added vignette about simulating statistical power.
+
 simulateR 0.1.0
 ===============
 

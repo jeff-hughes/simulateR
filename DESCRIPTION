@@ -1,8 +1,8 @@
 Package: simulateR
 Type: Package
 Title: Test Statistical Models Through Simulation
-Version: 0.1.0
-Date: 2016-04-30
+Version: 0.1.1
+Date: 2016-05-01
 Author@R: person("Jeffrey", "Hughes", email="jeff.hughes@gmail.com",
     role=c("aut", "cre"))
 Description: This package allows you to run simulations while easily varying

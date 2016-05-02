@@ -10,7 +10,7 @@ To install the most recent stable release, use the following code:
 
 ``` r
 install.packages("devtools")
-devtools::install_github("jeff-hughes/simulateR")
+devtools::install_github("jeff-hughes/simulateR@v0.1.1", build_vignettes=TRUE)
 ```
 
 ### Installation Issues
@@ -19,7 +19,8 @@ Networked computers can sometimes result in installation issues, as the `install
 
 ``` r
 install.packages("devtools")
-devtools::install_github("jeff-hughes/simulateR", args=c('--library="N:/path/to/libraries/"'))
+devtools::install_github("jeff-hughes/simulateR@v0.1.1", build_vignettes=TRUE,
+    args=c('--library="N:/path/to/libraries/"'))
 ```
 
 Obviously, change the path to the path where your R libraries are stored.

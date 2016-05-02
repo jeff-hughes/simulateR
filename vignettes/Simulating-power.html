@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<meta name="author" content="Jeffrey Hughes" />
+
+<meta name="date" content="2016-05-01" />
+
+<title>Simulating Power</title>
+
+
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+</style>
+
+
+<link href="data:text/css;charset=utf-8,body%20%7B%0Abackground%2Dcolor%3A%20%23fff%3B%0Amargin%3A%201em%20auto%3B%0Amax%2Dwidth%3A%20700px%3B%0Aoverflow%3A%20visible%3B%0Apadding%2Dleft%3A%202em%3B%0Apadding%2Dright%3A%202em%3B%0Afont%2Dfamily%3A%20%22Open%20Sans%22%2C%20%22Helvetica%20Neue%22%2C%20Helvetica%2C%20Arial%2C%20sans%2Dserif%3B%0Afont%2Dsize%3A%2014px%3B%0Aline%2Dheight%3A%201%2E35%3B%0A%7D%0A%23header%20%7B%0Atext%2Dalign%3A%20center%3B%0A%7D%0A%23TOC%20%7B%0Aclear%3A%20both%3B%0Amargin%3A%200%200%2010px%2010px%3B%0Apadding%3A%204px%3B%0Awidth%3A%20400px%3B%0Aborder%3A%201px%20solid%20%23CCCCCC%3B%0Aborder%2Dradius%3A%205px%3B%0Abackground%2Dcolor%3A%20%23f6f6f6%3B%0Afont%2Dsize%3A%2013px%3B%0Aline%2Dheight%3A%201%2E3%3B%0A%7D%0A%23TOC%20%2Etoctitle%20%7B%0Afont%2Dweight%3A%20bold%3B%0Afont%2Dsize%3A%2015px%3B%0Amargin%2Dleft%3A%205px%3B%0A%7D%0A%23TOC%20ul%20%7B%0Apadding%2Dleft%3A%2040px%3B%0Amargin%2Dleft%3A%20%2D1%2E5em%3B%0Amargin%2Dtop%3A%205px%3B%0Amargin%2Dbottom%3A%205px%3B%0A%7D%0A%23TOC%20ul%20ul%20%7B%0Amargin%2Dleft%3A%20%2D2em%3B%0A%7D%0A%23TOC%20li%20%7B%0Aline%2Dheight%3A%2016px%3B%0A%7D%0Atable%20%7B%0Amargin%3A%201em%20auto%3B%0Aborder%2Dwidth%3A%201px%3B%0Aborder%2Dcolor%3A%20%23DDDDDD%3B%0Aborder%2Dstyle%3A%20outset%3B%0Aborder%2Dcollapse%3A%20collapse%3B%0A%7D%0Atable%20th%20%7B%0Aborder%2Dwidth%3A%202px%3B%0Apadding%3A%205px%3B%0Aborder%2Dstyle%3A%20inset%3B%0A%7D%0Atable%20td%20%7B%0Aborder%2Dwidth%3A%201px%3B%0Aborder%2Dstyle%3A%20inset%3B%0Aline%2Dheight%3A%2018px%3B%0Apadding%3A%205px%205px%3B%0A%7D%0Atable%2C%20table%20th%2C%20table%20td%20%7B%0Aborder%2Dleft%2Dstyle%3A%20none%3B%0Aborder%2Dright%2Dstyle%3A%20none%3B%0A%7D%0Atable%20thead%2C%20table%20tr%2Eeven%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0A%7D%0Ap%20%7B%0Amargin%3A%200%2E5em%200%3B%0A%7D%0Ablockquote%20%7B%0Abackground%2Dcolor%3A%20%23f6f6f6%3B%0Apadding%3A%200%2E25em%200%2E75em%3B%0A%7D%0Ahr%20%7B%0Aborder%2Dstyle%3A%20solid%3B%0Aborder%3A%20none%3B%0Aborder%2Dtop%3A%201px%20solid%20%23777%3B%0Amargin%3A%2028px%200%3B%0A%7D%0Adl%20%7B%0Amargin%2Dleft%3A%200%3B%0A%7D%0Adl%20dd%20%7B%0Amargin%2Dbottom%3A%2013px%3B%0Amargin%2Dleft%3A%2013px%3B%0A%7D%0Adl%20dt%20%7B%0Afont%2Dweight%3A%20bold%3B%0A%7D%0Aul%20%7B%0Amargin%2Dtop%3A%200%3B%0A%7D%0Aul%20li%20%7B%0Alist%2Dstyle%3A%20circle%20outside%3B%0A%7D%0Aul%20ul%20%7B%0Amargin%2Dbottom%3A%200%3B%0A%7D%0Apre%2C%20code%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0Aborder%2Dradius%3A%203px%3B%0Acolor%3A%20%23333%3B%0Awhite%2Dspace%3A%20pre%2Dwrap%3B%20%0A%7D%0Apre%20%7B%0Aborder%2Dradius%3A%203px%3B%0Amargin%3A%205px%200px%2010px%200px%3B%0Apadding%3A%2010px%3B%0A%7D%0Apre%3Anot%28%5Bclass%5D%29%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0A%7D%0Acode%20%7B%0Afont%2Dfamily%3A%20Consolas%2C%20Monaco%2C%20%27Courier%20New%27%2C%20monospace%3B%0Afont%2Dsize%3A%2085%25%3B%0A%7D%0Ap%20%3E%20code%2C%20li%20%3E%20code%20%7B%0Apadding%3A%202px%200px%3B%0A%7D%0Adiv%2Efigure%20%7B%0Atext%2Dalign%3A%20center%3B%0A%7D%0Aimg%20%7B%0Abackground%2Dcolor%3A%20%23FFFFFF%3B%0Apadding%3A%202px%3B%0Aborder%3A%201px%20solid%20%23DDDDDD%3B%0Aborder%2Dradius%3A%203px%3B%0Aborder%3A%201px%20solid%20%23CCCCCC%3B%0Amargin%3A%200%205px%3B%0A%7D%0Ah1%20%7B%0Amargin%2Dtop%3A%200%3B%0Afont%2Dsize%3A%2035px%3B%0Aline%2Dheight%3A%2040px%3B%0A%7D%0Ah2%20%7B%0Aborder%2Dbottom%3A%204px%20solid%20%23f7f7f7%3B%0Apadding%2Dtop%3A%2010px%3B%0Apadding%2Dbottom%3A%202px%3B%0Afont%2Dsize%3A%20145%25%3B%0A%7D%0Ah3%20%7B%0Aborder%2Dbottom%3A%202px%20solid%20%23f7f7f7%3B%0Apadding%2Dtop%3A%2010px%3B%0Afont%2Dsize%3A%20120%25%3B%0A%7D%0Ah4%20%7B%0Aborder%2Dbottom%3A%201px%20solid%20%23f7f7f7%3B%0Amargin%2Dleft%3A%208px%3B%0Afont%2Dsize%3A%20105%25%3B%0A%7D%0Ah5%2C%20h6%20%7B%0Aborder%2Dbottom%3A%201px%20solid%20%23ccc%3B%0Afont%2Dsize%3A%20105%25%3B%0A%7D%0Aa%20%7B%0Acolor%3A%20%230033dd%3B%0Atext%2Ddecoration%3A%20none%3B%0A%7D%0Aa%3Ahover%20%7B%0Acolor%3A%20%236666ff%3B%20%7D%0Aa%3Avisited%20%7B%0Acolor%3A%20%23800080%3B%20%7D%0Aa%3Avisited%3Ahover%20%7B%0Acolor%3A%20%23BB00BB%3B%20%7D%0Aa%5Bhref%5E%3D%22http%3A%22%5D%20%7B%0Atext%2Ddecoration%3A%20underline%3B%20%7D%0Aa%5Bhref%5E%3D%22https%3A%22%5D%20%7B%0Atext%2Ddecoration%3A%20underline%3B%20%7D%0A%0Acode%20%3E%20span%2Ekw%20%7B%20color%3A%20%23555%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Edt%20%7B%20color%3A%20%23902000%3B%20%7D%20%0Acode%20%3E%20span%2Edv%20%7B%20color%3A%20%2340a070%3B%20%7D%20%0Acode%20%3E%20span%2Ebn%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Efl%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Ech%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Est%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Eco%20%7B%20color%3A%20%23888888%3B%20font%2Dstyle%3A%20italic%3B%20%7D%20%0Acode%20%3E%20span%2Eot%20%7B%20color%3A%20%23007020%3B%20%7D%20%0Acode%20%3E%20span%2Eal%20%7B%20color%3A%20%23ff0000%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Efu%20%7B%20color%3A%20%23900%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%20code%20%3E%20span%2Eer%20%7B%20color%3A%20%23a61717%3B%20background%2Dcolor%3A%20%23e3d2d2%3B%20%7D%20%0A" rel="stylesheet" type="text/css" />
+
+</head>
+
+<body>
+
+
+
+<div class="fluid-row" id="header">
+
+
+<h1 class="title">Simulating Power</h1>
+<h4 class="author"><em>Jeffrey Hughes</em></h4>
+<h4 class="date"><em>2016-05-01</em></h4>
+
+</div>
+
+
+<div id="simulating-power-with-the-simulater-package" class="section level1">
+<h1>Simulating Power with the simulateR Package</h1>
+<p>For simple statistical models (e.g., <em>t</em>-test, correlation), calculating the estimated power can be done analytically (for example, one can use the <code>pwr</code> package). But for more complex models, it is difficult to provide a good estimate of power without the use of simulation. Simulations repeatedly generate random data based on one’s predefined model, then analyze each data set and count the proportion of results that are significant. That proportion is the estimated power for the model.</p>
+<p>The <code>simulateR</code> package makes this process simple by providing a general-purpose, flexible function to perform simulations. You simply create a function that generates the data and analyses you want, and then use <code>simulate()</code> to run your user-defined function repeatedly and collate the results. The <code>simulate()</code> function also allows you to easily run simulations while varying particular parameters, so you can test the sensitivity of your analyses or how these parameters change the results.</p>
+<div id="example-simulating-a-t-test-with-simulater" class="section level2">
+<h2>Example: Simulating a <em>t</em>-test with simulateR</h2>
+<p>If we wanted to estimate the power for a two-sample <em>t</em>-test, we could calculate it analytically using the <code>pwr</code> package:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(pwr)
+<span class="kw">pwr.t.test</span>(<span class="dt">n=</span><span class="dv">50</span>, <span class="dt">d=</span>.<span class="dv">5</span>, <span class="dt">type=</span><span class="st">'two.sample'</span>)
+<span class="co">#&gt; </span>
+<span class="co">#&gt;      Two-sample t test power calculation </span>
+<span class="co">#&gt; </span>
+<span class="co">#&gt;               n = 50</span>
+<span class="co">#&gt;               d = 0.5</span>
+<span class="co">#&gt;       sig.level = 0.05</span>
+<span class="co">#&gt;           power = 0.6968934</span>
+<span class="co">#&gt;     alternative = two.sided</span>
+<span class="co">#&gt; </span>
+<span class="co">#&gt; NOTE: n is number in *each* group</span></code></pre></div>
+<p>We can see that the estimated power when Cohen’s <em>d</em> = .50 and <em>n</em> = 50 per cell is approximately .70. Simulating power in this simple case is likely overkill, but this example will demonstrate that simulations provide comparable results, at least for this model.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(simulateR)
+
+<span class="co"># create user-defined function to generate and analyze data</span>
+t_func &lt;-<span class="st"> </span>function(simNum, N, d) {
+    x1 &lt;-<span class="st"> </span><span class="kw">rnorm</span>(N, <span class="dv">0</span>, <span class="dv">1</span>)
+    x2 &lt;-<span class="st"> </span><span class="kw">rnorm</span>(N, d, <span class="dv">1</span>)
+    
+    t &lt;-<span class="st"> </span><span class="kw">t.test</span>(x1, x2, <span class="dt">var.equal=</span><span class="ot">TRUE</span>)  <span class="co"># run t-test on generated data</span>
+    stat &lt;-<span class="st"> </span>t$statistic
+    p &lt;-<span class="st"> </span>t$p.value
+
+    <span class="kw">return</span>(<span class="kw">c</span>(<span class="dt">t=</span>stat, <span class="dt">p=</span>p, <span class="dt">sig=</span>(p &lt;<span class="st"> </span>.<span class="dv">05</span>)))
+        <span class="co"># return a named vector with the results we want to keep</span>
+}
+
+<span class="kw">set.seed</span>(<span class="dv">123</span>)
+power_ttest &lt;-<span class="st"> </span><span class="kw">simulate</span>(t_func, <span class="dt">n.sims=</span><span class="dv">5000</span>, <span class="dt">N=</span><span class="dv">50</span>, <span class="dt">d=</span>.<span class="dv">5</span>)  <span class="co"># simulate data</span>
+<span class="co">#&gt; Running 5,000 simulations...</span>
+<span class="kw">summary</span>(power_ttest, <span class="st">'sig'</span>)  <span class="co"># get mean (proportion) of significant results</span>
+<span class="co">#&gt; [1] 0.7024</span></code></pre></div>
+<p>We first create a function that simulates normally distributed data for two groups, and performs a <em>t</em>-test. The <em>t</em> statistic and <em>p</em>-value are then returned as a named vector, along with a boolean value determining whether the test is significant or not. Finally, we use the <code>simulate</code> function to perform 5000 simulations, and then summarize the ‘sig’ value, which (by default) calculates the mean, giving us the proportion of simulations that were significant. This number agrees very closely with the analytic solution above.</p>
+</div>
+<div id="varying-parameters" class="section level2">
+<h2>Varying parameters</h2>
+<p>A key feature of <code>simulate</code> is the ability to easily vary parameters. For example, using the same <em>t</em>-test simulation as above:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">set.seed</span>(<span class="dv">123</span>)
+power_ttest_vary &lt;-<span class="st"> </span><span class="kw">simulate</span>(t_func, <span class="dt">params=</span><span class="kw">list</span>(<span class="dt">N=</span><span class="kw">c</span>(<span class="dv">25</span>, <span class="dv">50</span>, <span class="dv">100</span>)),
+    <span class="dt">n.sims=</span><span class="dv">5000</span>, <span class="dt">d=</span>.<span class="dv">5</span>)
+<span class="co">#&gt; Running 15,000 simulations...</span>
+    <span class="co"># give 'params' a list of parameters we want to vary;</span>
+    <span class="co"># testing at N=25, N=50, and N=100</span>
+<span class="kw">summary</span>(power_ttest_vary, <span class="st">'sig'</span>)
+<span class="co">#&gt;     N   mean</span>
+<span class="co">#&gt; 1  25 0.4020</span>
+<span class="co">#&gt; 2  50 0.7032</span>
+<span class="co">#&gt; 3 100 0.9402</span></code></pre></div>
+<p>We were easily able to run simuations for three different sample sizes: 25 per cell, 50 per cell, and 100 per cell. The <code>summary()</code> function shows us the proportion of simulations that were significant for each sample size. Clearly, power increases as <em>N</em> increases. If we wanted to vary across two separate parameters, that is easy to do as well:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">set.seed</span>(<span class="dv">123</span>)
+power_ttest_vary2 &lt;-<span class="st"> </span><span class="kw">simulate</span>(t_func, <span class="dt">params=</span><span class="kw">list</span>(<span class="dt">N=</span><span class="kw">c</span>(<span class="dv">25</span>, <span class="dv">50</span>, <span class="dv">100</span>), <span class="dt">d=</span><span class="kw">c</span>(.<span class="dv">2</span>, .<span class="dv">5</span>)),
+    <span class="dt">n.sims=</span><span class="dv">5000</span>)
+<span class="co">#&gt; Running 30,000 simulations...</span>
+    <span class="co"># varying N and Cohen's d</span>
+<span class="kw">summary</span>(power_ttest_vary2, <span class="st">'sig'</span>)
+<span class="co">#&gt;     N   d   mean</span>
+<span class="co">#&gt; 1  25 0.2 0.0980</span>
+<span class="co">#&gt; 2  50 0.2 0.1708</span>
+<span class="co">#&gt; 3 100 0.2 0.2976</span>
+<span class="co">#&gt; 4  25 0.5 0.4090</span>
+<span class="co">#&gt; 5  50 0.5 0.7044</span>
+<span class="co">#&gt; 6 100 0.5 0.9364</span></code></pre></div>
+<p>Note that <code>simulate</code> will fully cross all parameters: the three sample sizes are tested at <em>d</em> = .2, and at <em>d</em> = .5. So be careful when adding new parameters, as this can greatly increase the total number of simulations to be run!</p>
+</div>
+<div id="parallel-processing" class="section level2">
+<h2>Parallel processing</h2>
+<p>In order to cut down on the time taken to run simulations, <code>simulate</code> supports parallel processing via the <code>parallel</code> package. If your system has multiple processor cores or supports multithreading, you can incorporate this into your function call:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># time with no parallel processing (your mileage may very greatly)</span>
+<span class="kw">set.seed</span>(<span class="dv">123</span>)
+<span class="kw">system.time</span>(power_ttest_vary3 &lt;-<span class="st"> </span><span class="kw">simulate</span>(t_func,
+    <span class="dt">params=</span><span class="kw">list</span>(<span class="dt">N=</span><span class="kw">c</span>(<span class="dv">25</span>, <span class="dv">50</span>, <span class="dv">100</span>), <span class="dt">d=</span><span class="kw">c</span>(.<span class="dv">2</span>, .<span class="dv">5</span>)), <span class="dt">n.sims=</span><span class="dv">5000</span>))
+<span class="co">#&gt; Running 30,000 simulations...</span>
+<span class="co">#&gt;    user  system elapsed </span>
+<span class="co">#&gt;   21.58    0.01   23.97</span>
+
+<span class="co"># using parallel processing; I am using a Windows system, so I use parallel='snow';</span>
+<span class="co"># see the documentation for the 'parallel' package for more details</span>
+<span class="kw">set.seed</span>(<span class="dv">123</span>)
+<span class="kw">system.time</span>(power_ttest_vary4 &lt;-<span class="st"> </span><span class="kw">simulate</span>(t_func,
+    <span class="dt">params=</span><span class="kw">list</span>(<span class="dt">N=</span><span class="kw">c</span>(<span class="dv">25</span>, <span class="dv">50</span>, <span class="dv">100</span>), <span class="dt">d=</span><span class="kw">c</span>(.<span class="dv">2</span>, .<span class="dv">5</span>)), <span class="dt">n.sims=</span><span class="dv">5000</span>, <span class="dt">parallel=</span><span class="st">'snow'</span>, <span class="dt">ncpus=</span><span class="dv">4</span>))
+<span class="co">#&gt; Running 30,000 simulations...</span>
+<span class="co">#&gt;    user  system elapsed </span>
+<span class="co">#&gt;    2.48    0.15   14.98</span></code></pre></div>
+</div>
+<div id="bootstrapping" class="section level2">
+<h2>Bootstrapping</h2>
+<p>The <code>simulate()</code> function was created to handle simulations that involve generating random data. However, if you have data that you want to randomly sample from, you can use the bootstrapping feature, which relies on the <code>boot</code> package:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># user function must take data and indices as first two arguments; see 'boot'</span>
+<span class="co"># package documentation for more details</span>
+t_func_boot &lt;-<span class="st"> </span>function(data, indices) {
+    sample_data &lt;-<span class="st"> </span>data[indices, ]
+    treatGroup &lt;-<span class="st"> </span>sample_data[sample_data$group ==<span class="st"> 'trt2'</span>, <span class="st">'weight'</span>]
+    ctrlGroup &lt;-<span class="st"> </span>sample_data[sample_data$group ==<span class="st"> 'ctrl'</span>, <span class="st">'weight'</span>]
+    
+    t &lt;-<span class="st"> </span><span class="kw">t.test</span>(treatGroup, ctrlGroup, <span class="dt">var.equal=</span><span class="ot">TRUE</span>)
+    stat &lt;-<span class="st"> </span>t$statistic
+    p &lt;-<span class="st"> </span>t$p.value
+
+    <span class="kw">return</span>(<span class="kw">c</span>(<span class="dt">t=</span>stat, <span class="dt">p=</span>p, <span class="dt">sig=</span>(p &lt;<span class="st"> </span>.<span class="dv">05</span>)))
+}
+
+<span class="co"># example using built-in dataset PlantGrowth</span>
+<span class="kw">set.seed</span>(<span class="dv">123</span>)
+power_ttest_boot &lt;-<span class="st"> </span><span class="kw">simulate</span>(t_func_boot, <span class="dt">n.sims=</span><span class="dv">5000</span>, <span class="dt">boot=</span><span class="ot">TRUE</span>,
+    <span class="dt">bootParams=</span><span class="kw">list</span>(<span class="dt">data=</span>PlantGrowth))
+<span class="co">#&gt; Running 5,000 simulations...</span>
+<span class="kw">summary</span>(power_ttest_boot, <span class="st">'sig'</span>)
+<span class="co">#&gt; [1] 0.5376</span></code></pre></div>
+</div>
+<div id="sample-code-for-various-statistical-models" class="section level2">
+<h2>Sample code for various statistical models</h2>
+<div id="linear-models" class="section level3">
+<h3>Linear models</h3>
+<p>We can use <code>simulate</code> to calculate the power for a particular coefficient in a linear model:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">lm_test &lt;-<span class="st"> </span>function(simNum, N, b1, <span class="dt">b0=</span><span class="dv">0</span>, <span class="dt">xm=</span><span class="dv">0</span>, <span class="dt">xsd=</span><span class="dv">1</span>) {
+    x &lt;-<span class="st"> </span><span class="kw">rnorm</span>(N, xm, xsd)
+    y &lt;-<span class="st"> </span><span class="kw">rnorm</span>(N, b0 +<span class="st"> </span>b1*x, <span class="kw">sqrt</span>(<span class="dv">1</span> -<span class="st"> </span>b1^<span class="dv">2</span>))  <span class="co"># var. approx. 1 after accounting</span>
+                                              <span class="co"># for explained variance by x</span>
+    model &lt;-<span class="st"> </span><span class="kw">lm</span>(y ~<span class="st"> </span>x)
+
+    <span class="co"># pull output from model</span>
+    est &lt;-<span class="st"> </span><span class="kw">coef</span>(<span class="kw">summary</span>(model))[<span class="st">'x'</span>, <span class="st">'Estimate'</span>]
+    se &lt;-<span class="st"> </span><span class="kw">coef</span>(<span class="kw">summary</span>(model))[<span class="st">'x'</span>, <span class="st">'Std. Error'</span>]
+    p &lt;-<span class="st"> </span><span class="kw">coef</span>(<span class="kw">summary</span>(model))[<span class="st">'x'</span>, <span class="st">'Pr(&gt;|t|)'</span>]
+
+    <span class="kw">return</span>(<span class="kw">c</span>(<span class="dt">xm=</span><span class="kw">mean</span>(x), <span class="dt">xsd=</span><span class="kw">sd</span>(x), <span class="dt">ym=</span><span class="kw">mean</span>(y), <span class="dt">ysd=</span><span class="kw">sd</span>(y), <span class="dt">est=</span>est, <span class="dt">se=</span>se, <span class="dt">p=</span>p,
+        <span class="dt">sig=</span>(p &lt;<span class="st"> </span>.<span class="dv">05</span>)))
+}
+
+<span class="kw">set.seed</span>(<span class="dv">123</span>)
+power_lm &lt;-<span class="st"> </span><span class="kw">simulate</span>(lm_test, <span class="dt">params=</span><span class="kw">list</span>(<span class="dt">N=</span><span class="kw">c</span>(<span class="dv">200</span>, <span class="dv">300</span>)), <span class="dt">n.sims=</span><span class="dv">5000</span>, <span class="dt">b1=</span>.<span class="dv">15</span>,
+    <span class="dt">parallel=</span><span class="st">'snow'</span>, <span class="dt">ncpus=</span><span class="dv">4</span>)
+<span class="co">#&gt; Running 10,000 simulations...</span>
+    <span class="co"># we vary N at 200 and 300; we are also setting coefficient of x predicting</span>
+    <span class="co"># y to be approx. .15 across all simulations</span>
+<span class="kw">summary</span>(power_lm, <span class="st">'sig'</span>)
+<span class="co">#&gt;     N   mean</span>
+<span class="co">#&gt; 1 200 0.5646</span>
+<span class="co">#&gt; 2 300 0.7434</span></code></pre></div>
+<p>Of course, in the case of a single predictor, one can determine an analytic solution to this:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># f2 = R^2 / (1 - R^2)</span>
+<span class="kw">pwr.f2.test</span>(<span class="dt">u=</span><span class="dv">1</span>, <span class="dt">v=</span><span class="kw">c</span>(<span class="dv">200-2</span>, <span class="dv">300-2</span>), <span class="dt">f2=</span>(.<span class="dv">15</span>^<span class="dv">2</span>) /<span class="st"> </span>(<span class="dv">1</span> -<span class="st"> </span>.<span class="dv">15</span>^<span class="dv">2</span>))
+<span class="co">#&gt; </span>
+<span class="co">#&gt;      Multiple regression power calculation </span>
+<span class="co">#&gt; </span>
+<span class="co">#&gt;               u = 1</span>
+<span class="co">#&gt;               v = 198, 298</span>
+<span class="co">#&gt;              f2 = 0.0230179</span>
+<span class="co">#&gt;       sig.level = 0.05</span>
+<span class="co">#&gt;           power = 0.5695666, 0.7451719</span></code></pre></div>
+<p>However, using simulation, we can determine the power for more complex models, including interactions and simple effects.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">lm_test_interaction &lt;-<span class="st"> </span>function(simNum, N, b1, b2, b3, <span class="dt">b0=</span><span class="dv">0</span>, <span class="dt">x1m=</span><span class="dv">0</span>, <span class="dt">x1sd=</span><span class="dv">1</span>,
+    <span class="dt">x2m=</span><span class="dv">0</span>, <span class="dt">x2sd=</span><span class="dv">1</span>) {
+    
+    x1 &lt;-<span class="st"> </span><span class="kw">rnorm</span>(N, x1m, x1sd)
+    x2 &lt;-<span class="st"> </span><span class="kw">rnorm</span>(N, x2m, x2sd)
+    yvar &lt;-<span class="st"> </span><span class="kw">sqrt</span>(<span class="dv">1</span> -<span class="st"> </span>b1^<span class="dv">2</span> -<span class="st"> </span>b2^<span class="dv">2</span> -<span class="st"> </span>b3^<span class="dv">2</span>)  <span class="co"># residual variance</span>
+    y &lt;-<span class="st"> </span><span class="kw">rnorm</span>(N, b0 +<span class="st"> </span>b1*x1 +<span class="st"> </span>b2*x2 +<span class="st"> </span>b3*x1*x2, yvar)
+    model &lt;-<span class="st"> </span><span class="kw">lm</span>(y ~<span class="st"> </span>x1 *<span class="st"> </span>x2)
+
+    <span class="co"># pull output from model (two main effects and interaction)</span>
+    est_x1 &lt;-<span class="st"> </span><span class="kw">coef</span>(<span class="kw">summary</span>(model))[<span class="st">'x1'</span>, <span class="st">'Estimate'</span>]
+    p_x1 &lt;-<span class="st"> </span><span class="kw">coef</span>(<span class="kw">summary</span>(model))[<span class="st">'x1'</span>, <span class="st">'Pr(&gt;|t|)'</span>]
+    sig_x1 &lt;-<span class="st"> </span>p_x1 &lt;<span class="st"> </span>.<span class="dv">05</span>
+    est_x2 &lt;-<span class="st"> </span><span class="kw">coef</span>(<span class="kw">summary</span>(model))[<span class="st">'x2'</span>, <span class="st">'Estimate'</span>]
+    p_x2 &lt;-<span class="st"> </span><span class="kw">coef</span>(<span class="kw">summary</span>(model))[<span class="st">'x2'</span>, <span class="st">'Pr(&gt;|t|)'</span>]
+    sig_x2 &lt;-<span class="st"> </span>p_x2 &lt;<span class="st"> </span>.<span class="dv">05</span>
+    est_int &lt;-<span class="st"> </span><span class="kw">coef</span>(<span class="kw">summary</span>(model))[<span class="st">'x1:x2'</span>, <span class="st">'Estimate'</span>]
+    p_int &lt;-<span class="st"> </span><span class="kw">coef</span>(<span class="kw">summary</span>(model))[<span class="st">'x1:x2'</span>, <span class="st">'Pr(&gt;|t|)'</span>]
+    sig_int &lt;-<span class="st"> </span>p_int &lt;<span class="st"> </span>.<span class="dv">05</span>
+
+    <span class="kw">return</span>(<span class="kw">c</span>(<span class="dt">est_x1=</span>est_x1, <span class="dt">p_x1=</span>p_x1, <span class="dt">sig_x1=</span>sig_x1, <span class="dt">est_x2=</span>est_x2, <span class="dt">p_x2=</span>p_x2,
+        <span class="dt">sig_x2=</span>sig_x2, <span class="dt">est_int=</span>est_int, <span class="dt">p_int=</span>p_int, <span class="dt">sig_int=</span>sig_int))
+}
+
+<span class="kw">set.seed</span>(<span class="dv">123</span>)
+power_lm_int &lt;-<span class="st"> </span><span class="kw">simulate</span>(lm_test_interaction, <span class="dt">params=</span><span class="kw">list</span>(<span class="dt">N=</span><span class="kw">c</span>(<span class="dv">200</span>, <span class="dv">300</span>)),
+    <span class="dt">n.sims=</span><span class="dv">5000</span>, <span class="dt">b1=</span>.<span class="dv">15</span>, <span class="dt">b2=</span><span class="dv">0</span>, <span class="dt">b3=</span>.<span class="dv">3</span>, <span class="dt">parallel=</span><span class="st">'snow'</span>, <span class="dt">ncpus=</span><span class="dv">4</span>)
+<span class="co">#&gt; Running 10,000 simulations...</span>
+    <span class="co"># varying N at 200 and 300; setting coefficient of x1 = .15, coefficient of</span>
+    <span class="co"># x2 = 0, and coefficien of interaction = .3</span>
+<span class="kw">cbind</span>(<span class="kw">summary</span>(power_lm_int, <span class="st">'sig_x1'</span>), <span class="kw">summary</span>(power_lm_int, <span class="st">'sig_x2'</span>),
+    <span class="kw">summary</span>(power_lm_int, <span class="st">'sig_int'</span>))
+<span class="co">#&gt;     N   mean   N   mean   N   mean</span>
+<span class="co">#&gt; 1 200 0.5884 200 0.0508 200 0.9900</span>
+<span class="co">#&gt; 2 300 0.7760 300 0.0526 300 0.9994</span></code></pre></div>
+<p>Here, we are able to calculate the power for three coefficients at the same time. Note that for the coefficient b2, even though we set the true parameter equal to 0, power will trend toward your alpha level (typically .05), as this is the rate of false positives.</p>
+<p>We can also calculate the power for simple effects:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">lm_test_simple &lt;-<span class="st"> </span>function(simNum, N, b1, b2, b3, <span class="dt">b0=</span><span class="dv">0</span>, <span class="dt">x1m=</span><span class="dv">0</span>, <span class="dt">x1sd=</span><span class="dv">1</span>, <span class="dt">x2m=</span><span class="dv">0</span>, <span class="dt">x2sd=</span><span class="dv">1</span>) {
+    x1 &lt;-<span class="st"> </span><span class="kw">rnorm</span>(N, x1m, x1sd)
+    x2 &lt;-<span class="st"> </span><span class="kw">rnorm</span>(N, x2m, x2sd)
+    yvar &lt;-<span class="st"> </span><span class="kw">sqrt</span>(<span class="dv">1</span> -<span class="st"> </span>b1^<span class="dv">2</span> -<span class="st"> </span>b2^<span class="dv">2</span> -<span class="st"> </span>b3^<span class="dv">2</span>)
+    y &lt;-<span class="st"> </span><span class="kw">rnorm</span>(N, b0 +<span class="st"> </span>b1*x1 +<span class="st"> </span>b2*x2 +<span class="st"> </span>b3*x1*x2, yvar)
+    model &lt;-<span class="st"> </span><span class="kw">lm</span>(y ~<span class="st"> </span>x1 *<span class="st"> </span>x2)  <span class="co"># here is the original model</span>
+
+    est_int &lt;-<span class="st"> </span><span class="kw">coef</span>(<span class="kw">summary</span>(model))[<span class="st">'x1:x2'</span>, <span class="st">'Estimate'</span>]
+    p_int &lt;-<span class="st"> </span><span class="kw">coef</span>(<span class="kw">summary</span>(model))[<span class="st">'x1:x2'</span>, <span class="st">'Pr(&gt;|t|)'</span>]
+    sig_int &lt;-<span class="st"> </span>p_int &lt;<span class="st"> </span>.<span class="dv">05</span>
+    
+    <span class="co"># calculate x1 at +/- 1 SD, to look at simple effects</span>
+    x1minus1sd &lt;-<span class="st"> </span>x1 -<span class="st"> </span><span class="kw">mean</span>(x1) +<span class="st"> </span><span class="kw">sd</span>(x1)
+    x1plus1sd &lt;-<span class="st"> </span>x1 -<span class="st"> </span><span class="kw">mean</span>(x1) -<span class="st"> </span><span class="kw">sd</span>(x1)
+    
+    <span class="co"># new models to examine simple effects</span>
+    model2 &lt;-<span class="st"> </span><span class="kw">lm</span>(y ~<span class="st"> </span>x1minus1sd *<span class="st"> </span>x2)
+    model3 &lt;-<span class="st"> </span><span class="kw">lm</span>(y ~<span class="st"> </span>x1plus1sd *<span class="st"> </span>x2)
+    
+    <span class="co"># test effect of x2 when x1 is at +/- 1 SD</span>
+    est_x2_minus1 &lt;-<span class="st"> </span><span class="kw">coef</span>(<span class="kw">summary</span>(model2))[<span class="st">'x2'</span>, <span class="st">'Estimate'</span>]
+    p_x2_minus1 &lt;-<span class="st"> </span><span class="kw">coef</span>(<span class="kw">summary</span>(model2))[<span class="st">'x2'</span>, <span class="st">'Pr(&gt;|t|)'</span>]
+    sig_x2_minus1 &lt;-<span class="st"> </span>p_x2_minus1 &lt;<span class="st"> </span>.<span class="dv">05</span>
+    
+    est_x2_plus1 &lt;-<span class="st"> </span><span class="kw">coef</span>(<span class="kw">summary</span>(model3))[<span class="st">'x2'</span>, <span class="st">'Estimate'</span>]
+    p_x2_plus1 &lt;-<span class="st"> </span><span class="kw">coef</span>(<span class="kw">summary</span>(model3))[<span class="st">'x2'</span>, <span class="st">'Pr(&gt;|t|)'</span>]
+    sig_x2_plus1 &lt;-<span class="st"> </span>p_x2_plus1 &lt;<span class="st"> </span>.<span class="dv">05</span>
+
+    <span class="kw">return</span>(<span class="kw">c</span>(<span class="dt">est_int=</span>est_int, <span class="dt">p_int=</span>p_int, <span class="dt">sig_int=</span>sig_int,
+        <span class="dt">est_x2_minus1=</span>est_x2_minus1, <span class="dt">p_x2_minus1=</span>p_x2_minus1,
+        <span class="dt">sig_x2_minus1=</span>sig_x2_minus1, <span class="dt">est_x2_plus1=</span>est_x2_plus1,
+        <span class="dt">p_x2_plus1=</span>p_x2_plus1, <span class="dt">sig_x2_plus1=</span>sig_x2_plus1))
+}
+
+<span class="kw">set.seed</span>(<span class="dv">123</span>)
+power_lm_simple &lt;-<span class="st"> </span><span class="kw">simulate</span>(lm_test_simple, <span class="dt">params=</span><span class="kw">list</span>(<span class="dt">N=</span><span class="kw">c</span>(<span class="dv">200</span>, <span class="dv">300</span>)),
+    <span class="dt">n.sims=</span><span class="dv">5000</span>, <span class="dt">b1=</span>.<span class="dv">15</span>, <span class="dt">b2=</span><span class="dv">0</span>, <span class="dt">b3=</span>.<span class="dv">3</span>, <span class="dt">parallel=</span><span class="st">'snow'</span>, <span class="dt">ncpus=</span><span class="dv">4</span>)
+<span class="co">#&gt; Running 10,000 simulations...</span>
+<span class="kw">cbind</span>(<span class="kw">summary</span>(power_lm_simple, <span class="st">'sig_x2_minus1'</span>),
+    <span class="kw">summary</span>(power_lm_simple, <span class="st">'sig_x2_plus1'</span>))
+<span class="co">#&gt;     N   mean   N  mean</span>
+<span class="co">#&gt; 1 200 0.8722 200 0.870</span>
+<span class="co">#&gt; 2 300 0.9638 300 0.965</span></code></pre></div>
+</div>
+<div id="multilevel-models" class="section level3">
+<h3>Multilevel models</h3>
+<p>Multilevel models (MLM) can be especially difficult to estimate power for, as there are numerous parameters that can vary. In the example below, we examine a simple MLM examining the effect of time on a variable measured at 4 time points.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(nlme)
+mlm_test &lt;-<span class="st"> </span>function(simNum, N, b1, <span class="dt">b0=</span><span class="dv">0</span>, <span class="dt">xm=</span><span class="dv">0</span>, <span class="dt">xsd=</span><span class="dv">1</span>, <span class="dt">varInt=</span><span class="dv">1</span>, <span class="dt">varSlope=</span><span class="dv">1</span>, <span class="dt">varResid=</span><span class="dv">1</span>) {
+    timePoints &lt;-<span class="st"> </span><span class="dv">4</span>
+    subject &lt;-<span class="st"> </span><span class="kw">rep</span>(<span class="dv">1</span>:N, <span class="dt">each=</span>timePoints)
+    sub_int &lt;-<span class="st"> </span><span class="kw">rep</span>(<span class="kw">rnorm</span>(N, <span class="dv">0</span>, <span class="kw">sqrt</span>(varInt)), <span class="dt">each=</span>timePoints)  <span class="co"># random intercept</span>
+    sub_slope &lt;-<span class="st"> </span><span class="kw">rep</span>(<span class="kw">rnorm</span>(N, <span class="dv">0</span>, <span class="kw">sqrt</span>(varSlope)), <span class="dt">each=</span>timePoints)  <span class="co"># random slope</span>
+    time &lt;-<span class="st"> </span><span class="kw">rep</span>(<span class="dv">0</span>:(timePoints<span class="dv">-1</span>), N)
+    y &lt;-<span class="st"> </span>(b0 +<span class="st"> </span>sub_int) +<span class="st"> </span>(b1 +<span class="st"> </span>sub_slope)*time +<span class="st"> </span><span class="kw">rnorm</span>(N*timePoints, <span class="dv">0</span>, <span class="kw">sqrt</span>(varResid))
+        <span class="co"># y-intercept as a function of b0 plus random intercept;</span>
+        <span class="co"># slope as a function of b1 plus random slope</span>
+    data &lt;-<span class="st"> </span><span class="kw">data.frame</span>(subject, sub_int, sub_slope, time, y)
+    
+    <span class="co"># for more complex models that might not converge, tryCatch() is probably</span>
+    <span class="co"># a good idea</span>
+    return &lt;-<span class="st"> </span><span class="kw">tryCatch</span>({
+        model &lt;-<span class="st"> </span>nlme::<span class="kw">lme</span>(y ~<span class="st"> </span>time, <span class="dt">random=</span>~time|subject, <span class="dt">data=</span>data)
+            <span class="co"># when using parallel processing, we must refer to functions from</span>
+            <span class="co"># packages directly, e.g., package::function()</span>
+        
+        est &lt;-<span class="st"> </span><span class="kw">summary</span>(model)$tTable[<span class="st">'time'</span>, <span class="st">'Value'</span>]
+        se &lt;-<span class="st"> </span><span class="kw">summary</span>(model)$tTable[<span class="st">'time'</span>, <span class="st">'Std.Error'</span>]
+        p &lt;-<span class="st"> </span><span class="kw">summary</span>(model)$tTable[<span class="st">'time'</span>, <span class="st">'p-value'</span>]
+        <span class="kw">return</span>(<span class="kw">c</span>(<span class="dt">est=</span>est, <span class="dt">se=</span>se, <span class="dt">p=</span>p, <span class="dt">sig=</span>(p &lt;<span class="st"> </span>.<span class="dv">05</span>)))
+    },
+    <span class="dt">error=</span>function(e) {
+        <span class="co">#message(e)  # print error message</span>
+        <span class="kw">return</span>(<span class="kw">c</span>(<span class="dt">est=</span><span class="ot">NA</span>, <span class="dt">se=</span><span class="ot">NA</span>, <span class="dt">p=</span><span class="ot">NA</span>, <span class="dt">sig=</span><span class="ot">NA</span>))
+    })
+
+    <span class="kw">return</span>(return)
+}
+
+<span class="kw">set.seed</span>(<span class="dv">123</span>)
+power_mlm &lt;-<span class="st"> </span><span class="kw">simulate</span>(mlm_test, <span class="dt">params=</span><span class="kw">list</span>(<span class="dt">N=</span><span class="kw">c</span>(<span class="dv">200</span>, <span class="dv">300</span>)), <span class="dt">n.sims=</span><span class="dv">1000</span>, <span class="dt">b1=</span>.<span class="dv">15</span>,
+    <span class="dt">varInt=</span>.<span class="dv">05</span>, <span class="dt">varSlope=</span>.<span class="dv">15</span>, <span class="dt">varResid=</span>.<span class="dv">4</span>, <span class="dt">parallel=</span><span class="st">'snow'</span>, <span class="dt">ncpus=</span><span class="dv">4</span>)
+<span class="co">#&gt; Running 2,000 simulations...</span>
+<span class="kw">summary</span>(power_mlm, <span class="st">'sig'</span>, <span class="dt">na.rm=</span><span class="ot">TRUE</span>)
+<span class="co">#&gt;     N      mean</span>
+<span class="co">#&gt; 1 200 0.9888641</span>
+<span class="co">#&gt; 2 300 1.0000000</span></code></pre></div>
+</div>
+<div id="structural-equation-modelling" class="section level3">
+<h3>Structural equation modelling</h3>
+<p>Here is an example of a simple mediation model:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(lavaan)
+med_test &lt;-<span class="st"> </span>function(simNum, N, aa, bb, cc) {
+    x &lt;-<span class="st"> </span><span class="kw">rnorm</span>(N, <span class="dv">0</span>, <span class="dv">1</span>)
+    m &lt;-<span class="st"> </span><span class="kw">rnorm</span>(N, aa*x, <span class="kw">sqrt</span>(<span class="dv">1</span> -<span class="st"> </span>aa^<span class="dv">2</span>))
+    y &lt;-<span class="st"> </span><span class="kw">rnorm</span>(N, cc*x +<span class="st"> </span>bb*m, <span class="kw">sqrt</span>(<span class="dv">1</span> -<span class="st"> </span>cc^<span class="dv">2</span> -<span class="st"> </span>bb^<span class="dv">2</span>))
+    data &lt;-<span class="st"> </span><span class="kw">data.frame</span>(x, m, y)
+    
+    <span class="co"># set up lavaan model to calculate indirect effect (ab) and total effect</span>
+    model &lt;-<span class="st"> '</span>
+<span class="st">        m ~ a*x</span>
+<span class="st">        y ~ c*x</span>
+<span class="st">        y ~ b*m</span>
+<span class="st">        ab := a*b</span>
+<span class="st">        total := c + (a*b)'</span>
+    
+    fit &lt;-<span class="st"> </span>lavaan::<span class="kw">sem</span>(model, <span class="dt">data=</span>data)
+    ests &lt;-<span class="st"> </span>lavaan::<span class="kw">parameterEstimates</span>(fit)
+        <span class="co"># when using parallel processing, we must refer to functions from</span>
+        <span class="co"># packages directly, e.g., package::function()</span>
+    
+    <span class="co"># pull output from model</span>
+    a_est &lt;-<span class="st"> </span>ests[ests$label ==<span class="st"> 'a'</span>, <span class="st">'est'</span>]
+    a_p &lt;-<span class="st"> </span>ests[ests$label ==<span class="st"> 'a'</span>, <span class="st">'pvalue'</span>]
+    b_est &lt;-<span class="st"> </span>ests[ests$label ==<span class="st"> 'b'</span>, <span class="st">'est'</span>]
+    b_p &lt;-<span class="st"> </span>ests[ests$label ==<span class="st"> 'b'</span>, <span class="st">'pvalue'</span>]
+    c_est &lt;-<span class="st"> </span>ests[ests$label ==<span class="st"> 'c'</span>, <span class="st">'est'</span>]
+    c_p &lt;-<span class="st"> </span>ests[ests$label ==<span class="st"> 'c'</span>, <span class="st">'pvalue'</span>]
+    ab_est &lt;-<span class="st"> </span>ests[ests$label ==<span class="st"> 'ab'</span>, <span class="st">'est'</span>]
+    ab_p &lt;-<span class="st"> </span>ests[ests$label ==<span class="st"> 'ab'</span>, <span class="st">'pvalue'</span>]
+    
+    <span class="kw">return</span>(<span class="kw">c</span>(<span class="dt">a_est=</span>a_est, <span class="dt">a_p=</span>a_p, <span class="dt">b_est=</span>b_est, <span class="dt">b_p=</span>b_p, <span class="dt">c_est=</span>c_est, <span class="dt">c_p=</span>c_p,
+        <span class="dt">ab_est=</span>ab_est, <span class="dt">ab_p=</span>ab_p, <span class="dt">sig=</span>(ab_p &lt;<span class="st"> </span>.<span class="dv">05</span>)))
+}
+
+<span class="kw">set.seed</span>(<span class="dv">123</span>)
+power_med &lt;-<span class="st"> </span><span class="kw">simulate</span>(med_test, <span class="dt">params=</span><span class="kw">list</span>(<span class="dt">N=</span><span class="kw">c</span>(<span class="dv">200</span>, <span class="dv">300</span>)), <span class="dt">n.sims=</span><span class="dv">1000</span>, <span class="dt">aa=</span>.<span class="dv">15</span>,
+    <span class="dt">bb=</span>.<span class="dv">2</span>, <span class="dt">cc=</span>.<span class="dv">05</span>, <span class="dt">parallel=</span><span class="st">'snow'</span>, <span class="dt">ncpus=</span><span class="dv">4</span>)
+<span class="co">#&gt; Running 2,000 simulations...</span>
+    <span class="co"># set up mediation model where x -&gt; m = .15, m -&gt; y = .2, and x -&gt; y = .05</span>
+<span class="kw">summary</span>(power_med, <span class="st">'sig'</span>)
+<span class="co">#&gt;     N  mean</span>
+<span class="co">#&gt; 1 200 0.228</span>
+<span class="co">#&gt; 2 300 0.507</span></code></pre></div>
+<p>And an example of predicting a latent variable:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(lavaan)
+latent_test &lt;-<span class="st"> </span>function(simNum, N, b1, ind1, ind2, ind3) {
+    <span class="co"># matrix of factor structure; we have x as observed predictor, and y is a</span>
+    <span class="co"># latent variable with three indicators</span>
+    fmodel &lt;-<span class="st"> </span><span class="kw">matrix</span>(
+        <span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">0</span>,      <span class="co"># x</span>
+          <span class="dv">0</span>, ind1,   <span class="co"># y1</span>
+          <span class="dv">0</span>, ind2,   <span class="co"># y2</span>
+          <span class="dv">0</span>, ind3),  <span class="co"># y3</span>
+        <span class="dt">nrow=</span><span class="dv">4</span>, <span class="dt">ncol=</span><span class="dv">2</span>, <span class="dt">byrow=</span><span class="ot">TRUE</span>, <span class="dt">dimnames=</span><span class="kw">list</span>(
+            <span class="kw">c</span>(<span class="st">'x'</span>, <span class="st">'y1'</span>, <span class="st">'y2'</span>, <span class="st">'y3'</span>),  <span class="co"># rows (observed)</span>
+            <span class="kw">c</span>(<span class="st">'x'</span>, <span class="st">'y'</span>)))              <span class="co"># cols (latent)</span>
+    
+    <span class="co"># matrix of effects structure (variance-covariance); we are using x to</span>
+    <span class="co"># predict y (with coefficient specified as b1)</span>
+    y_resid_var &lt;-<span class="st"> </span><span class="kw">sqrt</span>(<span class="dv">1</span> -<span class="st"> </span>b1^<span class="dv">2</span>)
+    effects &lt;-<span class="st"> </span><span class="kw">matrix</span>(
+        <span class="kw">c</span>(<span class="dv">1</span>, b1,            <span class="co"># x</span>
+          <span class="dv">0</span>, y_resid_var),  <span class="co"># y</span>
+        <span class="dt">nrow=</span><span class="dv">2</span>, <span class="dt">ncol=</span><span class="dv">2</span>, <span class="dt">byrow=</span><span class="ot">TRUE</span>, <span class="dt">dimnames=</span><span class="kw">list</span>(
+            <span class="kw">c</span>(<span class="st">'x'</span>, <span class="st">'y'</span>), <span class="kw">c</span>(<span class="st">'x'</span>, <span class="st">'y'</span>)))
+
+    data &lt;-<span class="st"> </span>simulateR::<span class="kw">gen_data</span>(fmodel, effects)
+        <span class="co"># generates the data using factor and effects matrices</span>
+    
+    model &lt;-<span class="st"> '</span>
+<span class="st">        y =~ y1 + y2 + y3</span>
+<span class="st">        y ~ b1*x'</span>
+    
+    fit &lt;-<span class="st"> </span>lavaan::<span class="kw">sem</span>(model, <span class="dt">data=</span>data)
+    ests &lt;-<span class="st"> </span>lavaan::<span class="kw">parameterEstimates</span>(fit)
+    
+    est &lt;-<span class="st"> </span>ests[ests$label ==<span class="st"> 'b1'</span>, <span class="st">'est'</span>]
+    p &lt;-<span class="st"> </span>ests[ests$label ==<span class="st"> 'b1'</span>, <span class="st">'pvalue'</span>]
+    
+    <span class="kw">return</span>(<span class="kw">c</span>(<span class="dt">est=</span>est, <span class="dt">p=</span>p, <span class="dt">sig=</span>(p &lt;<span class="st"> </span>.<span class="dv">05</span>)))
+}
+
+<span class="kw">set.seed</span>(<span class="dv">123</span>)
+power_sem &lt;-<span class="st"> </span><span class="kw">simulate</span>(latent_test, <span class="dt">params=</span><span class="kw">list</span>(<span class="dt">N=</span><span class="kw">c</span>(<span class="dv">200</span>, <span class="dv">300</span>)), <span class="dt">n.sims=</span><span class="dv">1000</span>,
+    <span class="dt">b1=</span>.<span class="dv">15</span>, <span class="dt">ind1=</span>.<span class="dv">4</span>, <span class="dt">ind2=</span>.<span class="dv">4</span>, <span class="dt">ind3=</span>.<span class="dv">4</span>, <span class="dt">parallel=</span><span class="st">'snow'</span>, <span class="dt">ncpus=</span><span class="dv">4</span>)
+<span class="co">#&gt; Running 2,000 simulations...</span>
+<span class="kw">summary</span>(power_sem, <span class="st">'sig'</span>, <span class="dt">na.rm=</span><span class="ot">TRUE</span>)
+<span class="co">#&gt;     N      mean</span>
+<span class="co">#&gt; 1 200 0.7767768</span>
+<span class="co">#&gt; 2 300 0.7820000</span></code></pre></div>
+</div>
+</div>
+<div id="summary" class="section level2">
+<h2>Summary</h2>
+<p>Simulating the statistical power of complex models can be challenging due to the number of parameters that one needs to estimate. Making assumptions about how the variables covary, how they relate to each other, etc. can make it difficult. However, using the <code>simulateR</code> package provides a flexible way to run simulations in order to properly estimate power across a variety of assumptions. Hopefully, the examples in this vignette can provide you with a useful template from which to create models that fit your particular needs.</p>
+</div>
+</div>
+
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
