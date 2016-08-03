@@ -1,4 +1,11 @@
 <!-- NEWS.md is generated from NEWS.Rmd. Please edit that file -->
+simulateR 0.1.2
+===============
+
+NEW FEATURES
+
+-   Added support for playing a sound once simulations finish.
+
 simulateR 0.1.1
 ===============
 

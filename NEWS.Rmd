@@ -13,6 +13,12 @@ knitr::opts_chunk$set(
   fig.path = "NEWS-"
 )
 ```
+# simulateR 0.1.2
+
+NEW FEATURES
+
+* Added support for playing a sound once simulations finish.
+
 # simulateR 0.1.1
 
 NEW FEATURES
