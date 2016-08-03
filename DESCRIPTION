@@ -13,5 +13,6 @@ License: GPL-3
 LazyData: TRUE
 Imports: boot
 Suggests: parallel,
-    knitr
+    knitr,
+    beepr
 VignetteBuilder: knitr

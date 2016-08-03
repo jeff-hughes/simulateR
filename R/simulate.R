@@ -24,6 +24,10 @@
 #' @param cl An optional \code{parallel} or \code{snow} cluster for use if
 #'   \code{parallel = 'snow'}. If not supplied, a cluster on the local machine
 #'   is created for the duration of the simulations.
+#' @param beep Include a numeric value or character vector indicating the sound
+#'   you wish to play once the simulation is done running. Requires the "beepr"
+#'   package, and information about supported values is available in the
+#'   documentation for that package.
 #' @param ... Additional arguments to be passed to \code{func}. If you do not
 #'   need to vary certain parameters in your model, you can pass them to
 #'   \code{func} here.
@@ -51,7 +55,7 @@
 #' power_sim <- simulate(lm_test, params=list(N=c(200, 300)), n.sims=5000, b0=0, b1=.15)
 #' @export
 simulate <- function(func, params=NULL, n.sims=5000, boot=FALSE, bootParams=NULL,
-    parallel=c('no', 'multicore', 'snow'), ncpus=1, cl=NULL, ...) {
+    parallel=c('no', 'multicore', 'snow'), ncpus=1, cl=NULL, beep=NULL, ...) {
 
     # cross each param value with every other one, to create all combinations
     if (!is.null(params)) {
@@ -167,6 +171,14 @@ simulate <- function(func, params=NULL, n.sims=5000, boot=FALSE, bootParams=NULL
 
     output <- list(results=allResults, tests=grid, n.sims=n.sims)
     class(output) <- 'simulation'
+
+    # Ding! Fries are done
+    if (!is.null(beep)) {
+        if (requireNamespace('beepr', quietly=TRUE)) {
+            beepr::beep(beep)
+        }
+    }
+
     return(output)
 }
 
