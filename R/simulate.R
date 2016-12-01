@@ -57,6 +57,8 @@
 simulate <- function(func, params=NULL, n.sims=5000, boot=FALSE, bootParams=NULL,
     parallel=c('no', 'multicore', 'snow'), ncpus=1, cl=NULL, beep=NULL, ...) {
 
+    dots <- list(...)
+
     # cross each param value with every other one, to create all combinations
     if (!is.null(params)) {
         grid <- expand.grid(params, KEEP.OUT.ATTRS=FALSE)
@@ -114,7 +116,7 @@ simulate <- function(func, params=NULL, n.sims=5000, boot=FALSE, bootParams=NULL
         if (boot && 'data' %in% names(bootParams)) {
             boot_output <- do.call(boot::boot, args=c(list(statistic=func,
                 R=n.sims, parallel=parallel, ncpus=ncpus, cl=cl), bootParams,
-                as.list(grid[set, , drop=FALSE]), ...))
+                c(as.list(grid[set, , drop=FALSE]), dots)))
 
             col_names <- names(boot_output$t0)
             output <- boot_output$t
@@ -128,15 +130,15 @@ simulate <- function(func, params=NULL, n.sims=5000, boot=FALSE, bootParams=NULL
                 if (have_mc) {
                     output <- do.call(parallel::mclapply,
                         args=c(list(X=1:n.sims, FUN=func, mc.cores=ncpus),
-                            as.list(grid[set, , drop=FALSE]), ...))
+                            c(as.list(grid[set, , drop=FALSE]), dots)))
                 } else if (have_snow) {
                     output <- do.call(parallel::parLapply,
                         args=c(list(cl=clust, X=1:n.sims, fun=func),
-                            as.list(grid[set, , drop=FALSE]), ...))
+                            c(as.list(grid[set, , drop=FALSE]), dots)))
                 }
             } else {
                 output <- do.call(lapply, args=c(list(X=1:n.sims, FUN=func),
-                    as.list(grid[set, , drop=FALSE]), ...))
+                    c(as.list(grid[set, , drop=FALSE]), dots)))
             }
 
             # convert list to data frame
