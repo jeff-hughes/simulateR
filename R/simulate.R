@@ -147,13 +147,15 @@ simulate <- function(func, params=NULL, n.sims=5000, boot=FALSE, bootParams=NULL
             colnames(output) <- col_names
         }
 
+        rowsEachSim <- nrow(output) / n.sims
         if (!is.null(params)) {
             extendGrid <- matrix(rep(unlist(grid_output[set, , drop=FALSE]),
                 each=n.sims), nrow=n.sims)
             colnames(extendGrid) <- names(grid_output)
-            result <- cbind(sim=1:n.sims, extendGrid, output)
+
+            result <- cbind(sim=rep(1:n.sims, each=rowsEachSim), extendGrid, output)
         } else {
-            result <- cbind(sim=1:n.sims, output)
+            result <- cbind(sim=rep(1:n.sims, each=rowsEachSim), output)
         }
 
         if (is.null(allResults)) {
