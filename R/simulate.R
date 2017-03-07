@@ -193,7 +193,9 @@ simulate <- function(func, params=NULL, n.sims=5000,
         parallel::stopCluster(clust)
     }
 
-    allResults <- as.data.frame(allResults)
+    if (outputType == 'dataframe') {
+        allResults <- as.data.frame(allResults)
+    }
 
     output <- list(results=allResults, tests=grid, n.sims=n.sims)
     class(output) <- 'simulation'
