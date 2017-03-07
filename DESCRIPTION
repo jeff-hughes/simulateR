@@ -1,7 +1,7 @@
 Package: simulateR
 Type: Package
 Title: Test Statistical Models Through Simulation
-Version: 0.1.2
+Version: 0.1.3
 Date: 2016-08-03
 Author@R: person("Jeffrey", "Hughes", email="jeff.hughes@gmail.com",
     role=c("aut", "cre"))
@@ -11,9 +11,12 @@ Description: This package allows you to run simulations while easily varying
     documentation, and examples.
 License: GPL-3
 LazyData: TRUE
-Imports: boot
-Suggests: parallel,
+Imports:
+    boot
+Suggests:
+    parallel,
     knitr,
     beepr,
     testthat
 VignetteBuilder: knitr
+RoxygenNote: 5.0.1

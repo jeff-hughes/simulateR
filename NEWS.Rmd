@@ -13,6 +13,20 @@ knitr::opts_chunk$set(
   fig.path = "NEWS-"
 )
 ```
+# simulateR 0.1.3
+
+MAJOR CHANGES
+
+* Added `output` parameter that controls how simulation output is provided. This
+  change offers greater flexibility over how the provided function sends back
+  its own output for a single simulation. By default, `simulate()` will now
+  output a list with the data for each simulation; however, if output can be
+  coerced to a data frame or vector, these are offered as options as well.
+
+NEW FEATURES
+
+* Timing information for how long the simulations took is now provided.
+
 # simulateR 0.1.2
 
 NEW FEATURES
