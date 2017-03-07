@@ -119,74 +119,75 @@ simulate <- function(func, params=NULL, n.sims=5000,
         ' simulations...\n'))
 
     allResults <- NULL  # variable to fill with final output
-    for (set in 1:nSets) {
-        # bootstrap data
-        if (boot && 'data' %in% names(bootParams)) {
-            boot_output <- do.call(boot::boot, args=c(list(statistic=func,
-                R=n.sims, parallel=parallel, ncpus=ncpus, cl=cl), bootParams,
-                c(as.list(grid[set, , drop=FALSE]), dots)))
 
-            col_names <- names(boot_output$t0)
-            output <- boot_output$t
-            colnames(output) <- col_names
-
-        # simulate data
-        } else {
-            if (ncpus > 1 &&
-                (have_mc || have_snow)) {
-
-                if (have_mc) {
-                    output <- do.call(parallel::mclapply,
-                        args=c(list(X=1:n.sims, FUN=func, mc.cores=ncpus),
-                            c(as.list(grid[set, , drop=FALSE]), dots)))
-                } else if (have_snow) {
-                    output <- do.call(parallel::parLapply,
-                        args=c(list(cl=clust, X=1:n.sims, fun=func),
-                            c(as.list(grid[set, , drop=FALSE]), dots)))
-                }
-            } else {
-                output <- do.call(lapply, args=c(list(X=1:n.sims, FUN=func),
+    timing <- system.time(
+        for (set in 1:nSets) {
+            # bootstrap data
+            if (boot && 'data' %in% names(bootParams)) {
+                boot_output <- do.call(boot::boot, args=c(list(statistic=func,
+                    R=n.sims, parallel=parallel, ncpus=ncpus, cl=cl), bootParams,
                     c(as.list(grid[set, , drop=FALSE]), dots)))
-            }
 
-            # convert output to data frame/vector if requested
-            if (outputType == 'dataframe') {
-                col_names <- names(output[[1]])
-                output <- do.call(rbind.data.frame, output)
+                col_names <- names(boot_output$t0)
+                output <- boot_output$t
                 colnames(output) <- col_names
-            } else if (outputType == 'vector') {
-                output <- unlist(output)
+
+            # simulate data
+            } else {
+                if (ncpus > 1 &&
+                    (have_mc || have_snow)) {
+
+                    if (have_mc) {
+                        output <- do.call(parallel::mclapply,
+                            args=c(list(X=1:n.sims, FUN=func, mc.cores=ncpus),
+                                c(as.list(grid[set, , drop=FALSE]), dots)))
+                    } else if (have_snow) {
+                        output <- do.call(parallel::parLapply,
+                            args=c(list(cl=clust, X=1:n.sims, fun=func),
+                                c(as.list(grid[set, , drop=FALSE]), dots)))
+                    }
+                } else {
+                    output <- do.call(lapply, args=c(list(X=1:n.sims, FUN=func),
+                        c(as.list(grid[set, , drop=FALSE]), dots)))
+                }
+
+                # convert output to data frame/vector if requested
+                if (outputType == 'dataframe') {
+                    col_names <- names(output[[1]])
+                    output <- do.call(rbind.data.frame, output)
+                    colnames(output) <- col_names
+                } else if (outputType == 'vector') {
+                    output <- unlist(output)
+                }
+            }
+
+            if (outputType == 'dataframe') {
+                rowsEachSim <- nrow(output) / n.sims
+                if (!is.null(params)) {
+                    extendGrid <- matrix(rep(unlist(grid_output[set, , drop=FALSE]),
+                        each=n.sims), nrow=n.sims)
+                    colnames(extendGrid) <- names(grid_output)
+
+                    result <- cbind(sim=rep(1:n.sims, each=rowsEachSim), extendGrid, output)
+                } else {
+                    result <- cbind(sim=rep(1:n.sims, each=rowsEachSim), output)
+                }
+
+                if (is.null(allResults)) {
+                    allResults <- result
+                } else {
+                    allResults <- rbind(allResults, result)
+                }
+                row.names(allResults) <- NULL
+            } else {
+                if (is.null(allResults)) {
+                    allResults <- output
+                } else {
+                    allResults <- c(allResults, output)
+                }
             }
         }
-
-        if (outputType == 'dataframe') {
-            rowsEachSim <- nrow(output) / n.sims
-            if (!is.null(params)) {
-                extendGrid <- matrix(rep(unlist(grid_output[set, , drop=FALSE]),
-                    each=n.sims), nrow=n.sims)
-                colnames(extendGrid) <- names(grid_output)
-
-                result <- cbind(sim=rep(1:n.sims, each=rowsEachSim), extendGrid, output)
-            } else {
-                result <- cbind(sim=rep(1:n.sims, each=rowsEachSim), output)
-            }
-
-            if (is.null(allResults)) {
-                allResults <- result
-            } else {
-                allResults <- rbind(allResults, result)
-            }
-            row.names(allResults) <- NULL
-        } else {
-            if (is.null(allResults)) {
-                allResults <- output
-            } else {
-                allResults <- c(allResults, output)
-            }
-        }
-
-
-    }
+    )
 
     # stop cluster if we created it
     if (ncpus > 1 && have_snow && is.null(cl)) {
@@ -197,7 +198,7 @@ simulate <- function(func, params=NULL, n.sims=5000,
         allResults <- as.data.frame(allResults)
     }
 
-    output <- list(results=allResults, tests=grid, n.sims=n.sims)
+    output <- list(results=allResults, tests=grid, n.sims=n.sims, timing=timing)
     class(output) <- 'simulation'
 
     # Ding! Fries are done

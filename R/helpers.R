@@ -85,6 +85,35 @@ n.sims.simulation <- function(sim) {
 }
 
 
+#' Return the timing information of a simulation.
+#'
+#' \code{timing} is a generic function that extracts the raw data from a
+#' simulation.
+#'
+#' @param sim A simulation object.
+#' @param ... Additional arguments to be passed to the particular method for the
+#'   given object tye.
+#' @return The form of the value returned by \code{timing} depends on the class
+#'   of its argument. See the documentation of the particular methods for
+#'   details of what is produced by that method.
+#' @seealso \code{\link{timing.simulation}}
+#' @export
+timing <- function(sim, ...) UseMethod('timing')
+
+
+#' Return the timing information of a simulation.
+#'
+#' \code{timing.simulation} returns the raw data from a simulation.
+#'
+#' @param sim A simulation object of type 'simulation'.
+#' @return Returns an object of class "proc_time" with information about how
+#'   long the simulation process took.
+#' @export
+timing.simulation <- function(sim) {
+    return(sim$timing)
+}
+
+
 #' Calculate error variance given model coefficients.
 #'
 #' \code{lm_error_var} will calculate the required error variance for a linear
