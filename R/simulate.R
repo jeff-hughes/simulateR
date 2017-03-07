@@ -11,6 +11,10 @@
 #'   parameters can be a vector of multiple values, and \code{simulate} will
 #'   test each combination of these values.
 #' @param n.sims Number of simulations (per combination of params).
+#' @param output Specifies how the function provides the ultimate results of the
+#'   simulations: can return a "list", a "dataframe", or a "vector". Note that
+#'   the output from the supplied function must be able to be coerced into this
+#'   output type.
 #' @param boot Whether or not to use bootstrapped data to pass along to your
 #'   simulation.
 #' @param bootParams If \code{boot=TRUE}, then use \code{bootParams} to pass
@@ -31,9 +35,11 @@
 #' @param ... Additional arguments to be passed to \code{func}. If you do not
 #'   need to vary certain parameters in your model, you can pass them to
 #'   \code{func} here.
-#' @return Returns a data frame with one row per simulation. \code{func} must
-#'   return a (named) vector with the results you wish to capture; these vectors
-#'   will then be combined for the final output.
+#' @return Returns a list (by default) with one element per simulation. If
+#'   \code{output} is specified as "dataframe", then \code{func} must
+#'   return a (named) vector with the results you wish to capture; if
+#'   \code{output} is specified as "vector", then \code{func} must return a
+#'   one-element vector.
 #' @seealso \code{\link{boot}}
 #' @examples
 #' lm_test <- function(N, b0, b1) {
@@ -54,10 +60,12 @@
 #' # test power for two sample sizes: N=200 and N=300, with 5000 sims for each
 #' power_sim <- simulate(lm_test, params=list(N=c(200, 300)), n.sims=5000, b0=0, b1=.15)
 #' @export
-simulate <- function(func, params=NULL, n.sims=5000, boot=FALSE, bootParams=NULL,
+simulate <- function(func, params=NULL, n.sims=5000,
+    output=c('list', 'dataframe', 'vector'), boot=FALSE, bootParams=NULL,
     parallel=c('no', 'multicore', 'snow'), ncpus=1, cl=NULL, beep=NULL, ...) {
 
     dots <- list(...)
+    outputType <- match.arg(output)
 
     # cross each param value with every other one, to create all combinations
     if (!is.null(params)) {
@@ -141,29 +149,43 @@ simulate <- function(func, params=NULL, n.sims=5000, boot=FALSE, bootParams=NULL
                     c(as.list(grid[set, , drop=FALSE]), dots)))
             }
 
-            # convert list to data frame
-            col_names <- names(output[[1]])
-            output <- do.call(rbind.data.frame, output)
-            colnames(output) <- col_names
+            # convert output to data frame/vector if requested
+            if (outputType == 'dataframe') {
+                col_names <- names(output[[1]])
+                output <- do.call(rbind.data.frame, output)
+                colnames(output) <- col_names
+            } else if (outputType == 'vector') {
+                output <- unlist(output)
+            }
         }
 
-        rowsEachSim <- nrow(output) / n.sims
-        if (!is.null(params)) {
-            extendGrid <- matrix(rep(unlist(grid_output[set, , drop=FALSE]),
-                each=n.sims), nrow=n.sims)
-            colnames(extendGrid) <- names(grid_output)
+        if (outputType == 'dataframe') {
+            rowsEachSim <- nrow(output) / n.sims
+            if (!is.null(params)) {
+                extendGrid <- matrix(rep(unlist(grid_output[set, , drop=FALSE]),
+                    each=n.sims), nrow=n.sims)
+                colnames(extendGrid) <- names(grid_output)
 
-            result <- cbind(sim=rep(1:n.sims, each=rowsEachSim), extendGrid, output)
+                result <- cbind(sim=rep(1:n.sims, each=rowsEachSim), extendGrid, output)
+            } else {
+                result <- cbind(sim=rep(1:n.sims, each=rowsEachSim), output)
+            }
+
+            if (is.null(allResults)) {
+                allResults <- result
+            } else {
+                allResults <- rbind(allResults, result)
+            }
+            row.names(allResults) <- NULL
         } else {
-            result <- cbind(sim=rep(1:n.sims, each=rowsEachSim), output)
+            if (is.null(allResults)) {
+                allResults <- output
+            } else {
+                allResults <- c(allResults, output)
+            }
         }
 
-        if (is.null(allResults)) {
-            allResults <- result
-        } else {
-            allResults <- rbind(allResults, result)
-        }
-        row.names(allResults) <- NULL
+
     }
 
     # stop cluster if we created it

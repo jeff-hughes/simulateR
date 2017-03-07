@@ -14,5 +14,6 @@ LazyData: TRUE
 Imports: boot
 Suggests: parallel,
     knitr,
-    beepr
+    beepr,
+    testthat
 VignetteBuilder: knitr
