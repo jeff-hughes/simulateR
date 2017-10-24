@@ -2,9 +2,9 @@
 simulateR
 =========
 
-The `simulateR` R package includes a set of functions used to generate and test simulated data. It allows you to run simulations while easily varying parameters. One common use case would be to estimate statistical power for complex models.
+**NOTE**: This package is no longer under active development. Its functionality has been replaced by the "paramtest" package, available on [CRAN](https://cran.r-project.org/package=paramtest) and [Github](https://github.com/jeff-hughes/paramtest). The "simulateR" package has been retired and users should migrate over to "paramtest".
 
-Please be aware that this package is still in development, and as such, bugs may still exist, and functions and function parameters may still be subject to change.
+The `simulateR` R package includes a set of functions used to generate and test simulated data. It allows you to run simulations while easily varying parameters. One common use case would be to estimate statistical power for complex models.
 
 To install the most recent stable release, use the following code:
 
